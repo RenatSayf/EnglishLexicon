@@ -18,16 +18,11 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.INTERSTITIAL_MAIN
-import com.myapp.lexicon.ads.NATIVE_AD_MAIN
 import com.myapp.lexicon.ads.REWARDED_MAIN_ID
-import com.myapp.lexicon.ads.RevenueViewModel
+import com.myapp.lexicon.ads.ext.loadAndShowRewardedAd
+import com.myapp.lexicon.ads.ext.showInterstitialIfLoaded
 import com.myapp.lexicon.ads.models.AD_MAIN
-import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
-import com.myapp.lexicon.ads.showAd
-import com.myapp.lexicon.ads.startBannersActivity
-import com.myapp.lexicon.ads.startNativeAdsActivity
 import com.myapp.lexicon.databinding.OneOfFiveFragmNewBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
@@ -49,7 +44,6 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     private lateinit var vm: OneOfFiveViewModel
     private lateinit var mActivity: MainActivity
     private val adsVM: AdsViewModel by activityViewModels()
-    private val revenueVM: RevenueViewModel by activityViewModels()
     private var interstitialAd: InterstitialAd? = null
     private var rewardedAd: RewardedAd? = null
 
@@ -286,8 +280,8 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         showAd(
             onComplete = {
                 try {
-                    parentFragmentManager.popBackStack()
                     mActivity.testPassed()
+                    parentFragmentManager.popBackStack()
                 } catch (e: Exception) {
                     e.printStackTraceIfDebug()
                 }
@@ -300,8 +294,8 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         showAd(
             onComplete = {
                 try {
-                    parentFragmentManager.popBackStack()
                     mActivity.testFailed(errors)
+                    parentFragmentManager.popBackStack()
                 } catch (e: Exception) {
                     e.printStackTraceIfDebug()
                 }
@@ -315,76 +309,34 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         if (this.adsIsEnabled) {
 
             when(AD_MAIN) {
-                AdType.BANNER.type -> {
-                    requireActivity().startBannersActivity(
-                        onImpression = {data: AdData? ->
-                            if (data != null) {
-                                data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
-                                revenueVM.updateUserRevenueIntoCloud(data)
-                            }
-                        },
-                        onDismissed = {bonus: Double ->
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                            onComplete.invoke()
-                        }
-                    )
-                }
                 AdType.NATIVE.type -> {
-                    requireActivity().startNativeAdsActivity(
-                        adId = NATIVE_AD_MAIN,
-                        onImpression = {data: AdData? ->
-                            if (data != null) {
-                                try {
-                                    data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
-                                } catch (e: Exception) {
-                                    e.printStackTraceIfDebug()
-                                }
-                            }
+                    requireActivity().showInterstitialIfLoaded(
+                        onClosed = {
+                            onComplete.invoke()
                         },
-                        onDismissed = {bonus: Double ->
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                            try {
-                                onComplete.invoke()
-                            } catch (e: Exception) {
-                                e.printStackTraceIfDebug()
-                            }
+                        onNotLoaded = {
+                            onComplete.invoke()
                         }
                     )
                 }
                 AdType.INTERSTITIAL.type -> {
-                    interstitialAd?.showAd(
-                        requireActivity(),
-                        onImpression = { data ->
-                            if (data != null) {
-                                data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
-                                revenueVM.updateUserRevenueIntoCloud(data)
-                            }
-                        }, onDismissed = { bonus: Double ->
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+
+                    requireActivity().showInterstitialIfLoaded(
+                        onClosed = {
+                            onComplete.invoke()
+                        },
+                        onNotLoaded = {
                             onComplete.invoke()
                         }
                     )
-                    if (interstitialAd == null) {
-                        onComplete.invoke()
-                    }
                 }
                 AdType.REWARDED.type -> {
-                    rewardedAd?.showAd(
-                        requireActivity(),
-                        onImpression = {data: AdData? ->
-                            if (data != null) {
-                                data.adCount = mapOf(AdName.FULL_MAIN.name to 1)
-                                revenueVM.updateUserRevenueIntoCloud(data)
-                            }
-                        },
-                        onDismissed = {bonus: Double ->
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+
+                    requireActivity().loadAndShowRewardedAd(
+                        onNotLoaded = {
                             onComplete.invoke()
                         }
-                    )?: run {
-                        onComplete.invoke()
-                    }
+                    )
                 }
             }
         }

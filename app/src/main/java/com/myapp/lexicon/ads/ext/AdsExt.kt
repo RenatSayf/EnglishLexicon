@@ -15,7 +15,6 @@ import com.appodeal.ads.revenue.RevenueInfo
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.Reward
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
-import kotlin.apply
 import kotlin.collections.forEach
 import kotlin.collections.forEachIndexed
 import kotlin.random.Random
@@ -25,23 +24,9 @@ private val DEBUG_REWARD_USD: Double
         return Random(System.currentTimeMillis()).nextInt(5, 21) * 0.001
     }
 
-private fun adRevenueCallback(onRewarded: (Reward) -> Unit) = object : AdRevenueCallbacks {
-
-    private val reward = Reward(adId = 0, amount = 0.0, currency = "")
-
-    override fun onAdRevenueReceive(revenueInfo: RevenueInfo) {
-        reward.apply {
-            adId = revenueInfo.placementId
-            amount = if (BuildConfig.DEBUG) DEBUG_REWARD_USD else revenueInfo.revenue
-            currency = revenueInfo.currency
-        }
-        onRewarded.invoke(reward)
-    }
-}
-
 fun FragmentActivity.loadAndShowRewardedAd(
     onNotLoaded: () -> Unit = {},
-    onRewarded: (Reward) -> Unit
+    onClosed: () -> Unit = {}
 ) {
     if (Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
         if (Appodeal.canShow(Appodeal.REWARDED_VIDEO)) {
@@ -55,13 +40,7 @@ fun FragmentActivity.loadAndShowRewardedAd(
             }
 
             override fun onRewardedVideoClosed(finished: Boolean) {
-                adRevenueCallback(
-                    onRewarded = { reward ->
-                        onRewarded.invoke(reward)
-                    }
-                ).onAdRevenueReceive(
-                    RevenueInfo("", "", "", "", 0, DEBUG_REWARD_USD, "", Appodeal.REWARDED_VIDEO, "rewarded_video")
-                )
+                onClosed.invoke()
             }
 
             override fun onRewardedVideoExpired() {
@@ -113,9 +92,7 @@ fun FragmentActivity.initAppodealAd(
                     override fun onAdRevenueReceive(revenueInfo: RevenueInfo) {
                         revenueInfo
                     }
-
                 })
-
                 onCompleted.invoke()
             }
         }
@@ -124,20 +101,11 @@ fun FragmentActivity.initAppodealAd(
 
 fun List<NativeAdView>.showIfLoaded(
     onNotLoaded: () -> Unit = {},
-    onShow: () -> Unit = {},
-    onRewarded: (reward: Reward) -> Unit = {}
+    onShow: () -> Unit = {}
 ) {
 
     val adsCount = Appodeal.getAvailableNativeAdsCount()
     if (adsCount >= 0) {
-
-        val nativeAds = Appodeal.getNativeAds(this.size)
-
-//        Appodeal.setAdRevenueCallbacks(adRevenueCallback(
-//            onRewarded = { reward ->
-//                reward
-//            }
-//        ))
 
         Appodeal.setNativeCallbacks(object : NativeCallbacks {
             override fun onNativeClicked(nativeAd: NativeAd?) {
@@ -162,17 +130,10 @@ fun List<NativeAdView>.showIfLoaded(
 
             override fun onNativeShown(nativeAd: NativeAd?) {
                 onShow.invoke()
-                adRevenueCallback(
-                    onRewarded = { reward ->
-                        onRewarded.invoke(reward)
-                    }
-                ).onAdRevenueReceive(
-                    RevenueInfo("", "", "", "", 0, DEBUG_REWARD_USD, "", Appodeal.NATIVE, "native")
-                )
-                return
             }
 
         })
+        val nativeAds = Appodeal.getNativeAds(this.size)
         nativeAds.forEachIndexed { index, ad ->
             this[index].registerView(ad)
         }
@@ -191,34 +152,13 @@ fun FragmentActivity.showInterstitialIfLoaded(
     val loaded = Appodeal.isLoaded(Appodeal.INTERSTITIAL)
     if (loaded) {
 
-        var adReward: Reward? = null
-
-//        Appodeal.setAdRevenueCallbacks(object : AdRevenueCallbacks {
-//            override fun onAdRevenueReceive(revenueInfo: RevenueInfo) {
-//                revenueInfo
-//            }
-//        })
-
-//        Appodeal.setAdRevenueCallbacks(object : AdRevenueCallbacks {
-//            override fun onAdRevenueReceive(revenueInfo: RevenueInfo) {
-//                adRevenueCallback(onRewarded = { reward ->
-//                    reward
-//                })
-//            }
-//        })
-
         Appodeal.setInterstitialCallbacks(object : InterstitialCallbacks {
             override fun onInterstitialClicked() {
                 return
             }
 
             override fun onInterstitialClosed() {
-                if (adReward != null) {
-                    onClosed.invoke(adReward!!)
-                }
-                else {
-                    onClosed.invoke(null)
-                }
+                onClosed.invoke(null)
             }
 
             override fun onInterstitialExpired() {
@@ -238,13 +178,6 @@ fun FragmentActivity.showInterstitialIfLoaded(
             }
 
             override fun onInterstitialShown() {
-                adRevenueCallback(
-                    onRewarded = { reward ->
-                        adReward = reward
-                    }
-                ).onAdRevenueReceive(
-                    RevenueInfo("", "", "", "", 0, DEBUG_REWARD_USD, "", Appodeal.INTERSTITIAL, "interstitial")
-                )
                 onShow.invoke()
             }
         })
