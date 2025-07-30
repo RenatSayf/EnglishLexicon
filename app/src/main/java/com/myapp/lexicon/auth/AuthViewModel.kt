@@ -22,11 +22,9 @@ import com.parse.ParseUser
 import com.parse.RequestPasswordResetCallback
 import com.parse.SignUpCallback
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import javax.inject.Inject
 
 
-open class AuthViewModel @Inject constructor(
+open class AuthViewModel(
     app: Application
 ) : AndroidViewModel(app) {
 
@@ -68,7 +66,6 @@ open class AuthViewModel @Inject constructor(
     open val state: LiveData<UserState> = _state
 
     protected val _stateFlow = MutableStateFlow<UserState>(UserState.Init)
-    open val stateFlow: StateFlow<UserState> = _stateFlow
 
     open fun setState(state: UserState) {
         _state.value = state

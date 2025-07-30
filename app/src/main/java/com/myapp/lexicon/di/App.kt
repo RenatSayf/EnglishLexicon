@@ -7,14 +7,14 @@ import android.content.Context
 import android.util.Log
 import androidx.multidex.MultiDex
 import androidx.work.Configuration
+import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.remoteconfig.ConfigUpdate
 import com.google.firebase.remoteconfig.ConfigUpdateListener
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigException
-import com.google.firebase.remoteconfig.ktx.remoteConfig
-import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
+import com.google.firebase.remoteconfig.remoteConfig
+import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.helpers.printLogIfDebug
@@ -22,8 +22,6 @@ import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.parse.Parse
 import com.yandex.mobile.ads.common.InitializationListener
 import com.yandex.mobile.ads.common.MobileAds
-import io.appmetrica.analytics.AppMetrica
-import io.appmetrica.analytics.AppMetricaConfig
 
 
 class App : Application(), Configuration.Provider {
@@ -67,10 +65,6 @@ class App : Application(), Configuration.Provider {
                 }
             })
         }
-
-        val apiKey = getString(R.string.ya_metrica_api_key)
-        val config = AppMetricaConfig.newConfigBuilder(apiKey).build()
-        AppMetrica.activate(this, config)
 
         MobileAds.initialize(this, object : InitializationListener {
             override fun onInitializationCompleted() {

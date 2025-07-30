@@ -5,10 +5,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.R
-import javax.inject.Inject
 
 
-class PageBackViewModel @Inject constructor(app: Application) : AndroidViewModel(app)
+class PageBackViewModel(app: Application) : AndroidViewModel(app)
 {
     private val imageArray = mutableListOf(
         R.drawable.img_uk4,

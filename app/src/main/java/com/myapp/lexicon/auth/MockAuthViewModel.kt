@@ -1,10 +1,8 @@
 package com.myapp.lexicon.auth
 
 import android.app.Application
-import javax.inject.Inject
 
 
-class MockAuthViewModel @Inject constructor(
+class MockAuthViewModel(
     app: Application
-): AuthViewModel(app) {
-}
+): AuthViewModel(app)

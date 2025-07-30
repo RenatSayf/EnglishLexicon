@@ -1,7 +1,8 @@
 package com.myapp.lexicon.ads.models
 
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
+
 
 enum class AdType(val type: Int) {
     BANNER(type = 1),

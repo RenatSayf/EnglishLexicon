@@ -4,12 +4,13 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.settings.isUserRegistered
 import com.yandex.mobile.ads.appopenad.AppOpenAd
 import com.yandex.mobile.ads.appopenad.AppOpenAdEventListener
@@ -28,6 +29,7 @@ class AppOpenAdViewModel(app: Application): AndroidViewModel(app) {
         if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) "demo-appopenad-yandex"
         else Firebase.remoteConfig.getString("AD_ON_OPEN_ID")
     } catch (e: Exception) {
+        e.printStackTraceIfDebug()
         ""
     }
     private val adRequestConfiguration by lazy {

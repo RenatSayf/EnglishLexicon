@@ -1,7 +1,8 @@
 package com.myapp.lexicon.ads
 
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
+
 
 enum class RewardedAdIds(val id: String) {
     REWARDED_1("R-M-711878-10"),
@@ -14,6 +15,7 @@ val REWARDED_MAIN_ID: String
         return try {
             Firebase.remoteConfig.getString("REWARDED_MAIN_ID")
         } catch (e: Exception) {
+
             RewardedAdIds.REWARDED_1.id
         }
     }

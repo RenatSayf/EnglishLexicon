@@ -1,10 +1,9 @@
 package com.myapp.lexicon.video.constants
 
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.video.models.Bookmark
-import com.parse.ParseConfig
 import kotlinx.serialization.json.Json
 
 
@@ -17,6 +16,7 @@ val BOOKMARKS: List<Bookmark>
             val referenceList = jsonDecoder.decodeFromString<List<Bookmark>>(json)
             referenceList
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             emptyList()
         }
     }

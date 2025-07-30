@@ -7,8 +7,8 @@ package com.myapp.lexicon.auth.account
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.auth.models.SBPBanks
 import com.myapp.lexicon.common.PAYMENT_THRESHOLD

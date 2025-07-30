@@ -41,13 +41,12 @@ import com.yandex.mobile.ads.rewarded.RewardedAdEventListener
 import com.yandex.mobile.ads.rewarded.RewardedAdLoadListener
 import com.yandex.mobile.ads.rewarded.RewardedAdLoader
 import kotlinx.serialization.json.Json
-import javax.inject.Inject
 import kotlin.math.roundToInt
 
 
 var REQUEST_ID: String? = null
 
-class AdsViewModel @Inject constructor(
+class AdsViewModel(
     private val app: Application
 ): AndroidViewModel(app) {
 

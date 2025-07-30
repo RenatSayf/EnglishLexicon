@@ -24,11 +24,9 @@ import com.parse.ParseQuery
 import com.parse.ParseUser
 import com.parse.SaveCallback
 import java.util.Currency
-import javax.inject.Inject
 
 
-
-class RevenueViewModel @Inject constructor(
+class RevenueViewModel(
     private val app: Application
 ): UserViewModel(app) {
 

@@ -7,10 +7,9 @@ import androidx.lifecycle.viewModelScope
 import com.myapp.lexicon.models.User
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 
-class MockUserViewModel @Inject constructor(
+class MockUserViewModel(
     app: Application
 ): UserViewModel(app) {
 

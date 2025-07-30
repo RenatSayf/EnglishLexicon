@@ -9,5 +9,6 @@ dependencyResolutionManagement {
             url 'https://maven.google.com'
         }
         maven { url 'https://jitpack.io' }
+        maven { url "https://artifactory.appodeal.com/appodeal" }
     }
 }

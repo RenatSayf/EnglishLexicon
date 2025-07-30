@@ -1,8 +1,8 @@
 package com.myapp.lexicon.common
 
 import android.net.Uri
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 

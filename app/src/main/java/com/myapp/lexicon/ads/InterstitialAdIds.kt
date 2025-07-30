@@ -1,7 +1,9 @@
 package com.myapp.lexicon.ads
 
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
+
 
 enum class InterstitialAdIds(val id: String) {
     INTERSTITIAL_1("R-M-711878-4"),
@@ -16,6 +18,7 @@ val INTERSTITIAL_MAIN: String
         return try {
             Firebase.remoteConfig.getString("INTERSTITIAL_MAIN").trim()
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             InterstitialAdIds.INTERSTITIAL_1.id
         }
     }
@@ -25,6 +28,7 @@ val INTERSTITIAL_TRANSLATE: String
         return try {
             Firebase.remoteConfig.getString("INTERSTITIAL_TRANSLATE").trim()
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             InterstitialAdIds.INTERSTITIAL_2.id
         }
     }
@@ -34,6 +38,7 @@ val INTERSTITIAL_VIDEO: String
         return try {
             Firebase.remoteConfig.getString("INTERSTITIAL_VIDEO").trim()
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             InterstitialAdIds.INTERSTITIAL_2.id
         }
     }
@@ -43,6 +48,7 @@ val INTERSTITIAL_SERVICE: String
         return try {
             Firebase.remoteConfig.getString("INTERSTITIAL_SERVICE").trim()
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             InterstitialAdIds.INTERSTITIAL_3.id
         }
     }
@@ -52,6 +58,7 @@ val INTERSTITIAL_TEST: String
         return try {
             Firebase.remoteConfig.getString("INTERSTITIAL_TEST").trim()
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             InterstitialAdIds.INTERSTITIAL_4.id
         }
     }

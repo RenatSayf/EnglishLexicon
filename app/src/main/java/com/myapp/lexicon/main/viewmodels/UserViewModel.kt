@@ -28,14 +28,11 @@ import com.parse.SaveCallback
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.util.Currency
-import javax.inject.Inject
 
 
 
 
-open class UserViewModel @Inject constructor(
-    private val app: Application
-) : AndroidViewModel(app) {
+open class UserViewModel(private val app: Application) : AndroidViewModel(app) {
 
     sealed class LoadingState {
         data object Start: LoadingState()
