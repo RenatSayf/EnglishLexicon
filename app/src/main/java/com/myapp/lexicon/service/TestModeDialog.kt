@@ -22,6 +22,7 @@ import com.myapp.lexicon.aboutapp.checkAppUpdate
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.BANNER_SERVICE
 import com.myapp.lexicon.ads.RevenueViewModel
+import com.myapp.lexicon.ads.ext.showBannerViewIfLoaded
 import com.myapp.lexicon.ads.ext.showUserRewardAnimatedly
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.models.AdName
@@ -104,16 +105,7 @@ class TestModeDialog : DialogFragment() {
 
         with(binding) {
 
-            bannerView.loadBanner(BANNER_SERVICE, onImpression = {
-                requireContext().getAuthDataFromPref(onSuccess = { email: String, p: String ->
-                    userVM.updateUserDataIntoCloud(
-                        userMap = mapOf(
-                            User.KEY_EMAIL to email,
-                            AdName.BANNER_SERVICE.name to 1
-                        )
-                    )
-                })
-            })
+            requireActivity().showBannerViewIfLoaded(binding.bannerBottom.id)
 
             val extra = requireActivity().intent.getStringExtra(ServiceActivity.ARG_JSON)
             if (extra != null) {

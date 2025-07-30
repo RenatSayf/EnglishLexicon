@@ -205,13 +205,12 @@
 
         </LinearLayout>
 
-        <com.yandex.mobile.ads.banner.BannerAdView
-            android:id="@+id/bannerView"
+        <com.appodeal.ads.BannerView
+            android:id="@+id/bannerBottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:gravity="center">
-        </com.yandex.mobile.ads.banner.BannerAdView>
+            />
 
     </LinearLayout>
 

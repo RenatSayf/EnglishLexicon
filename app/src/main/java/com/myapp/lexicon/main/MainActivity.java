@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.appodeal.ads.BannerView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.BuildConfig;
@@ -30,6 +31,7 @@ import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannerAdIdsKt;
 import com.myapp.lexicon.ads.RevenueViewModel;
+import com.myapp.lexicon.ads.ext.AdsExtKt;
 import com.myapp.lexicon.ads.models.AdName;
 import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
@@ -519,26 +521,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainFragment mainFragment = MainFragment.Companion.getInstance(this);
         getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, mainFragment).commit();
 
-        BannerAdView bannerView = contentBinding.bannerView;
-        AdsViewModelKt.loadBanner(
-                bannerView,
-                BannerAdIdsKt.getBANNER_MAIN(),
-                0.08,
-                (data) -> {
-                    SettingsExtKt.getAuthDataFromPref(
-                            this,
-                            () -> null,
-                            (email, p) -> {
-                                userVM.updateUserDataIntoCloud(Map.of(User.KEY_EMAIL, email, AdName.BANNER_MAIN.name(), 1));
-                                return null;
-                            },
-                            e -> null
-                    );
-                    return null;
-                },
-                e -> null,
-                () -> null
-        );
+        BannerView bannerBottom = contentBinding.bannerBottom;
+        AdsExtKt.showBannerViewIfLoaded(this, bannerBottom.getId());
 
         onRevenueUpdate();
 

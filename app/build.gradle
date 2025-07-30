@@ -36,6 +36,7 @@ android {
         buildConfigField "String", "CHAT_ID", "\"${properties.getProperty("CHAT_ID")}\""
         buildConfigField "String", "PAYMENT_CODE", "\"${properties.getProperty("PAYMENT_CODE")}\""
         buildConfigField "String", "IS_IMPORTANT_UPDATE", "\"${properties.getProperty("IS_IMPORTANT_UPDATE")}\""
+        buildConfigField "String", "ADS_KEY", "\"${properties.getProperty("ADS_KEY")}\""
     }
     buildTypes {
         debug {
@@ -166,7 +167,7 @@ dependencies {
     implementation 'com.yandex.android:mobileads:7.11.0'
 
     // Appodeal
-    implementation("com.appodeal.ads:sdk:3.8.1.0") {
+    implementation("com.appodeal.ads:sdk:3.3.2.0") {
         exclude group: "com.appodeal.ads.sdk.services", module: "adjust"
         exclude group: "com.appodeal.ads.sdk.services", module: "appsflyer"
         exclude group: "com.appodeal.ads.sdk.services", module: "facebook_analytics"

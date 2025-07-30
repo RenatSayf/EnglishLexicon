@@ -21,11 +21,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.appodeal.ads.BannerView;
 import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
 import com.myapp.lexicon.ads.BannerAdIdsKt;
+import com.myapp.lexicon.ads.ext.AdsExtKt;
 import com.myapp.lexicon.ads.models.AdName;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.helpers.ExtensionsKt;
@@ -313,28 +315,8 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
             switcher.showNext();
         }
 
-        BannerAdView bannerView = findViewById(R.id.bannerView);
-        AdsViewModelKt.loadBanner(
-                bannerView,
-                BannerAdIdsKt.getBANNER_EDITOR(),
-                0.08,
-                (data) -> {
-                    SettingsExtKt.getAuthDataFromPref(
-                            this,
-                            () -> null,
-                            (email, p) -> {
-                                userVM.updateUserDataIntoCloud(
-                                        Map.of(User.KEY_EMAIL, email, AdName.BANNER_EDITOR.name(), 1)
-                                );
-                                return null;
-                            },
-                            e -> null
-                    );
-                    return null;
-                },
-                e -> null,
-                () -> null
-        );
+        BannerView bannerBottom = findViewById(R.id.bannerBottom);
+        AdsExtKt.showBannerViewIfLoaded(this, bannerBottom.getId());
 
     }
 

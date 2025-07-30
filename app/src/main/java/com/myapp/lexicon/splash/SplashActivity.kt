@@ -10,8 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.appodeal.ads.Appodeal
+import com.appodeal.ads.utils.Log
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AppOpenAdViewModel
+import com.myapp.lexicon.ads.ext.initAppodealAd
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.common.KEY_APP_STORE_LINK
@@ -62,6 +66,30 @@ class SplashActivity : AppCompatActivity() {
             goToAppStore()
             finish()
         }
+
+        if (BuildConfig.DEBUG) {
+            Appodeal.setLogLevel(logLevel = Log.LogLevel.verbose)
+        }
+        Appodeal.setTesting(!BuildConfig.DEBUG)
+
+        val adTypes = listOf(
+            Appodeal.INTERSTITIAL,
+            Appodeal.NATIVE,
+            Appodeal.REWARDED_VIDEO,
+            Appodeal.BANNER_VIEW
+        )
+
+        adTypes.forEachIndexed(action = {index, type ->
+            this@SplashActivity.initAppodealAd(
+                adType = type,
+                onCompleted = {
+                    if (index == adTypes.size - 1) {
+                        startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+                        this@SplashActivity.finish()
+                    }
+                }
+            )
+        })
 
         speaker = Speaker(this, object : Speaker.Listener {
             override fun onSuccessInit() {

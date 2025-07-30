@@ -21,6 +21,7 @@ import com.myapp.lexicon.ads.INTERSTITIAL_TRANSLATE
 import com.myapp.lexicon.ads.NATIVE_AD_TRANS
 import com.myapp.lexicon.ads.REWARDED_TRANSLATE_ID
 import com.myapp.lexicon.ads.RevenueViewModel
+import com.myapp.lexicon.ads.ext.showBannerViewIfLoaded
 import com.myapp.lexicon.ads.loadBanner
 import com.myapp.lexicon.ads.models.AD_TRANSLATE
 import com.myapp.lexicon.ads.models.AdData
@@ -197,21 +198,8 @@ class TranslateFragment : Fragment()
                 }
             }
 
-            bannerView.loadBanner(
-                adId = BANNER_TRANSLATE,
-                onImpression = {
-                    requireContext().getAuthDataFromPref(
-                        onSuccess = {email: String, password: String ->
-                            userVM.updateUserDataIntoCloud(
-                                userMap = mapOf(
-                                    User.KEY_EMAIL to email,
-                                    AdName.BANNER_TRANSLATE.name to 1
-                                )
-                            )
-                        }
-                    )
-                }
-            )
+            requireActivity().showBannerViewIfLoaded(binding.bannerBottom.id)
+
         }
 
     }
