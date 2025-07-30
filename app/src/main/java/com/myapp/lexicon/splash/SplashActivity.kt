@@ -8,15 +8,12 @@ import android.speech.tts.TextToSpeech
 import androidx.appcompat.app.AppCompatActivity
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.net.toUri
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.appodeal.ads.Appodeal
 import com.appodeal.ads.utils.Log
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.ads.AppOpenAdViewModel
 import com.myapp.lexicon.ads.ext.initAppodealAd
-import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.common.KEY_APP_STORE_LINK
 import com.myapp.lexicon.common.MESSAGE_TO_USER
@@ -27,8 +24,6 @@ import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.Speaker
 import com.myapp.lexicon.settings.checkOnStartSpeech
 import com.myapp.lexicon.settings.goToAppStore
-import com.myapp.lexicon.settings.isUserRegistered
-import com.yandex.mobile.ads.appopenad.AppOpenAd
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -43,19 +38,14 @@ class SplashActivity : AppCompatActivity() {
 
     private lateinit var binding: ALayoutSplashScreenBinding
     private var speaker: Speaker? = null
-
-    private lateinit var openAdVM: AppOpenAdViewModel
-    private var appOpenAd: AppOpenAd? = null
-
     private var speechChecked = false
+    private var adsInitChecked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ALayoutSplashScreenBinding.inflate(layoutInflater, CoordinatorLayout(this), false)
         setContentView(binding.root)
-
-        openAdVM = ViewModelProvider(this)[AppOpenAdViewModel::class]
 
         IS_REWARD_ACCESSIBLE
         MESSAGE_TO_USER
@@ -83,10 +73,7 @@ class SplashActivity : AppCompatActivity() {
             this@SplashActivity.initAppodealAd(
                 adType = type,
                 onCompleted = {
-                    if (index == adTypes.size - 1) {
-                        startActivity(Intent(this@SplashActivity, MainActivity::class.java))
-                        this@SplashActivity.finish()
-                    }
+                    adsInitChecked = true
                 }
             )
         })
@@ -201,48 +188,16 @@ class SplashActivity : AppCompatActivity() {
             }
         })
 
-        openAdVM.resultLoadOpenAd.observe(this@SplashActivity) { result ->
-            result.onSuccess { ad: AppOpenAd ->
-                appOpenAd = ad
-            }
-        }
-
-        openAdVM.resultAdData.observe(this) { result ->
-            result?.onSuccess { data: AdData ->
-                startMainActivity(data)
-            }
-            result?.onFailure {
-                startMainActivity(null)
-            }
-        }
-
         lifecycleScope.launch {
-            while (!speechChecked || openAdVM.resultLoadOpenAd.value == null) {
+            while (!speechChecked || !adsInitChecked) {
                 delay(500)
-                if (speechChecked && openAdVM.resultLoadOpenAd.value != null) {
-                    this@SplashActivity.isUserRegistered(
-                        onYes = {
-                            appOpenAd?.show(this@SplashActivity)?: run {
-                                startMainActivity(null)
-                            }
-                        },
-                        onNotRegistered = {
-                            startMainActivity(null)
-                        }
-                    )
+                if (speechChecked && adsInitChecked) {
+                    val intent = Intent(this@SplashActivity, MainActivity::class.java)
+                    startActivity(intent)
+                    this@SplashActivity.finish()
                 }
             }
         }
-    }
-
-    private fun startMainActivity(data: AdData?) {
-        val intent = Intent(this@SplashActivity, MainActivity::class.java).apply {
-            if (data != null) {
-                putExtra(KEY_AD_DATA, data.toString())
-            }
-        }
-        startActivity(intent)
-        this@SplashActivity.finish()
     }
 
 }

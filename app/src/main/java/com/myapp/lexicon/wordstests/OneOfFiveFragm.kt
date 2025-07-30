@@ -280,8 +280,8 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         showAd(
             onComplete = {
                 try {
-                    mActivity.testPassed()
                     parentFragmentManager.popBackStack()
+                    mActivity.testPassed()
                 } catch (e: Exception) {
                     e.printStackTraceIfDebug()
                 }
@@ -294,8 +294,8 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         showAd(
             onComplete = {
                 try {
-                    mActivity.testFailed(errors)
                     parentFragmentManager.popBackStack()
+                    mActivity.testFailed(errors)
                 } catch (e: Exception) {
                     e.printStackTraceIfDebug()
                 }

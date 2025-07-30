@@ -166,7 +166,7 @@ fun FragmentActivity.showInterstitialIfLoaded(
             }
 
             override fun onInterstitialFailedToLoad() {
-                onClosed.invoke(null)
+                return
             }
 
             override fun onInterstitialLoaded(isPrecache: Boolean) {
@@ -174,7 +174,7 @@ fun FragmentActivity.showInterstitialIfLoaded(
             }
 
             override fun onInterstitialShowFailed() {
-                onClosed.invoke(null)
+                return
             }
 
             override fun onInterstitialShown() {

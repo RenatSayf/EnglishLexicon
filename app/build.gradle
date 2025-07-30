@@ -167,7 +167,7 @@ dependencies {
     implementation 'com.yandex.android:mobileads:7.11.0'
 
     // Appodeal
-    implementation("com.appodeal.ads:sdk:3.3.2.0") {
+    implementation("com.appodeal.ads:sdk:3.8.1.0") {
         exclude group: "com.appodeal.ads.sdk.services", module: "adjust"
         exclude group: "com.appodeal.ads.sdk.services", module: "appsflyer"
         exclude group: "com.appodeal.ads.sdk.services", module: "facebook_analytics"
