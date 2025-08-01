@@ -264,14 +264,18 @@ class YouTubeFragment : Fragment() {
                                                             parentFragmentManager.beginTransaction()
                                                                 .add(
                                                                     R.id.frame_to_page_fragm,
-                                                                    AdFragment.newInstance()
+                                                                    AdFragment.newInstance(onCreate = {
+                                                                        pbLoadPage.visibility = View.GONE
+                                                                    })
                                                                 ).commit()
                                                         },
                                                         onPause = {
                                                             parentFragmentManager.beginTransaction()
                                                                 .add(
                                                                     R.id.frame_to_page_fragm,
-                                                                    AdFragment.newInstance()
+                                                                    AdFragment.newInstance(onCreate = {
+                                                                        pbLoadPage.visibility = View.GONE
+                                                                    })
                                                                 ).commit()
                                                         }
                                                     )

@@ -22,7 +22,10 @@ class AdFragment : Fragment() {
     companion object {
         var isShown = false
 
-        fun newInstance() = AdFragment()
+        fun newInstance(onCreate: () -> Unit): AdFragment {
+            onCreate.invoke()
+            return AdFragment()
+        }
     }
 
     private var binding: FragmentAdBinding? = null
