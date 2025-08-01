@@ -14,6 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
@@ -32,6 +33,8 @@ import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.rewarded.RewardedAd
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Date
 
 const val ROWS: Int = 5
@@ -280,8 +283,11 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         showAd(
             onComplete = {
                 try {
-                    parentFragmentManager.popBackStack()
                     mActivity.testPassed()
+                    lifecycleScope.launch {
+                        delay(500)
+                        parentFragmentManager.popBackStack()
+                    }
                 } catch (e: Exception) {
                     e.printStackTraceIfDebug()
                 }
@@ -294,8 +300,11 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         showAd(
             onComplete = {
                 try {
-                    parentFragmentManager.popBackStack()
                     mActivity.testFailed(errors)
+                    lifecycleScope.launch {
+                        delay(500)
+                        parentFragmentManager.popBackStack()
+                    }
                 } catch (e: Exception) {
                     e.printStackTraceIfDebug()
                 }
