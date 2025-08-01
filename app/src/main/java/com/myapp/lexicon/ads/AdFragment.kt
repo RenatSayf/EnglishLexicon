@@ -7,28 +7,25 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import com.myapp.lexicon.ads.ext.loadAndShowRewardedAd
+import com.myapp.lexicon.ads.ext.showIfLoaded
+import com.myapp.lexicon.ads.ext.showInterstitialIfLoaded
 import com.myapp.lexicon.ads.models.AD_VIDEO
-import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.databinding.FragmentAdBinding
-import com.myapp.lexicon.video.web.YouTubeFragment
-import com.yandex.mobile.ads.interstitial.InterstitialAd
-import com.yandex.mobile.ads.rewarded.RewardedAd
-import kotlinx.serialization.json.Json
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class AdFragment : Fragment() {
 
     companion object {
+        var isShown = false
+
         fun newInstance() = AdFragment()
     }
 
     private var binding: FragmentAdBinding? = null
-
-    private val adsVM: AdsViewModel by lazy {
-        ViewModelProvider(this)[AdsViewModel::class.java]
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,82 +39,64 @@ class AdFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         when(AD_VIDEO) {
-            AdType.BANNER.type -> {
-                requireActivity().startBannersActivity(
-                    onImpression = {data: AdData? ->
-                        setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
-                            if (data != null) {
-                                val jsonData = Json.encodeToJsonElement(AdData.serializer(), data).toString()
-                                putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
-                            }
-                        })
-                    },
-                    onDismissed = {
-                        setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
-                        parentFragmentManager.beginTransaction().remove(this).commit()
-                    }
-                )
-            }
+
             AdType.NATIVE.type -> {
-                requireActivity().startNativeAdsActivity(
-                    adId = NATIVE_AD_VIDEO,
-                    onImpression = {data: AdData? ->
-                        setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
-                            if (data != null) {
-                                val jsonData = Json.encodeToJsonElement(AdData.serializer(), data).toString()
-                                putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
+
+                with(binding!!) {
+
+                    listOf(adNative1, adNative2)
+                        .showIfLoaded(
+                            onNotLoaded = {
+
+                            },
+                            onShow = {
+                                if (!isShown) {
+                                    isShown = true
+                                    lifecycleScope.launch {
+                                        delay(5000)
+                                        btnClose.visibility = View.VISIBLE
+                                        btnClose.setOnClickListener {
+                                            parentFragmentManager.beginTransaction().remove(this@AdFragment).commit()
+                                        }
+                                    }
+                                }
                             }
-                        })
-                    },
-                    onDismissed = {bonus: Double ->
-                        setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
-                        parentFragmentManager.beginTransaction().remove(this).commit()
-                    }
-                )
+                        )
+                }
             }
             AdType.INTERSTITIAL.type -> {
-                adsVM.loadInterstitialAd(INTERSTITIAL_VIDEO)
-                adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-                    result.onSuccess { ad: InterstitialAd ->
-                        ad.showAd(
-                            requireActivity(),
-                            onImpression = {data: AdData? ->
-                                setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
-                                    if (data != null) {
-                                        val jsonData = Json.encodeToJsonElement(AdData.serializer(), data).toString()
-                                        putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
-                                    }
-                                })
-                            },
-                            onDismissed = {
-                                setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
-                                parentFragmentManager.beginTransaction().remove(this).commit()
-                            }
-                        )
+
+                requireActivity().showInterstitialIfLoaded(
+                    onNotLoaded = {
+                        lifecycleScope.launch {
+                            delay(500)
+                            parentFragmentManager.beginTransaction().remove(this@AdFragment).commit()
+                        }
+                    },
+                    onClosed = {
+                        lifecycleScope.launch {
+                            delay(500)
+                            parentFragmentManager.beginTransaction().remove(this@AdFragment).commit()
+                        }
                     }
-                }
+                )
             }
             AdType.REWARDED.type -> {
-                adsVM.loadRewardedAd(REWARDED_VIDEO_ID)
-                adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
-                    result.onSuccess { ad: RewardedAd ->
-                        ad.showAd(
-                            requireActivity(),
-                            onImpression = {data: AdData? ->
-                                setFragmentResult(YouTubeFragment.KEY_AD_DATA, Bundle().apply {
-                                    if (data != null) {
-                                        val jsonData = Json.encodeToJsonElement(AdData.serializer(), data).toString()
-                                        putString(YouTubeFragment.KEY_JSON_AD_DATA, jsonData)
-                                    }
-                                })
-                            },
-                            onDismissed = {bonus: Double ->
-                                setFragmentResult(YouTubeFragment.KEY_AD_DISMISSED, Bundle.EMPTY)
-                                parentFragmentManager.beginTransaction().remove(this).commit()
-                            }
-                        )
+
+                requireActivity().loadAndShowRewardedAd(
+                    onNotLoaded = {
+                        lifecycleScope.launch {
+                            delay(500)
+                            parentFragmentManager.beginTransaction().remove(this@AdFragment).commit()
+                        }
+                    },
+                    onClosed = {
+                        lifecycleScope.launch {
+                            delay(500)
+                            parentFragmentManager.beginTransaction().remove(this@AdFragment).commit()
+                        }
                     }
-                }
+                )
             }
         }
     }
@@ -125,6 +104,8 @@ class AdFragment : Fragment() {
     override fun onDestroy() {
 
         binding = null
+        isShown = false
+
         super.onDestroy()
     }
 

@@ -5,7 +5,6 @@ package com.myapp.lexicon.video.web
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -24,6 +23,7 @@ import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.PopupWindow
 import androidx.activity.OnBackPressedCallback
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
@@ -179,7 +179,7 @@ class YouTubeFragment : Fragment() {
                     ): Boolean {
                         if (view?.url != null && view.url?.startsWith(VIDEO_URL) == false) {
                             requireActivity().startActivity(
-                                Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                Intent(Intent.ACTION_VIEW, url?.toUri())
                             )
                         }
                         val isOpenApp = request?.url?.query?.contains("open_app")
@@ -238,50 +238,52 @@ class YouTubeFragment : Fragment() {
 
                             bottomBar.changeHeightAnimatedly(5.toDp)
 
-                            adPopup = vPopAnchor.showAdPopup(
-                                onClick = {
-                                    pbLoadPage.visibility = View.VISIBLE
-                                    webView.evaluateJavascript(
-                                        youTubeVM.scriptGetHtmlContent,
-                                        object : ValueCallback<String> {
-                                            override fun onReceiveValue(html: String?) {
-                                                youTubeVM.parseIsPlayerPlay(
-                                                    rawHtml = html,
-                                                    onStart = {
-                                                        requireActivity().orientationLock()
-                                                    },
-                                                    onComplete = { ex: Exception? ->
-                                                        ex?.let {
-                                                            it.printStackTraceIfDebug()
-                                                            pbLoadPage.visibility = View.GONE
+                            if (!AdFragment.isShown) {
+                                adPopup = vPopAnchor.showAdPopup(
+                                    onClick = {
+                                        pbLoadPage.visibility = View.VISIBLE
+                                        webView.evaluateJavascript(
+                                            youTubeVM.scriptGetHtmlContent,
+                                            object : ValueCallback<String> {
+                                                override fun onReceiveValue(html: String?) {
+                                                    youTubeVM.parseIsPlayerPlay(
+                                                        rawHtml = html,
+                                                        onStart = {
+                                                            requireActivity().orientationLock()
+                                                        },
+                                                        onComplete = { ex: Exception? ->
+                                                            ex?.let {
+                                                                it.printStackTraceIfDebug()
+                                                                pbLoadPage.visibility = View.GONE
+                                                            }
+                                                            requireActivity().orientationUnLock()
+                                                        },
+                                                        onPlay = {
+                                                            val url = youTubeVM.playPauseClickScript()
+                                                            webView.loadUrl(url)
+                                                            parentFragmentManager.beginTransaction()
+                                                                .add(
+                                                                    R.id.frame_to_page_fragm,
+                                                                    AdFragment.newInstance()
+                                                                ).commit()
+                                                        },
+                                                        onPause = {
+                                                            parentFragmentManager.beginTransaction()
+                                                                .add(
+                                                                    R.id.frame_to_page_fragm,
+                                                                    AdFragment.newInstance()
+                                                                ).commit()
                                                         }
-                                                        requireActivity().orientationUnLock()
-                                                    },
-                                                    onPlay = {
-                                                        val url = youTubeVM.playPauseClickScript()
-                                                        webView.loadUrl(url)
-                                                        parentFragmentManager.beginTransaction()
-                                                            .add(
-                                                                R.id.frame_to_page_fragm,
-                                                                AdFragment.newInstance()
-                                                            ).commit()
-                                                    },
-                                                    onPause = {
-                                                        parentFragmentManager.beginTransaction()
-                                                            .add(
-                                                                R.id.frame_to_page_fragm,
-                                                                AdFragment.newInstance()
-                                                            ).commit()
-                                                    }
-                                                )
+                                                    )
+                                                }
                                             }
-                                        }
-                                    )
-                                },
-                                onDismissed = {
-                                    youTubeVM.startAdTimer()
-                                }
-                            )
+                                        )
+                                    },
+                                    onDismissed = {
+                                        youTubeVM.startAdTimer()
+                                    }
+                                )
+                            }
                         }
 
                         else -> {}
@@ -394,6 +396,7 @@ class YouTubeFragment : Fragment() {
                     val adData = try {
                         Json.decodeFromString<AdData>(strData)
                     } catch (e: Exception) {
+                        e.printStackTraceIfDebug()
                         null
                     }
                     adData?.let { data: AdData ->

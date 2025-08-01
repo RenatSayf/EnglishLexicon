@@ -1,8 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ads.AdFragment">
+    android:fillViewport="true"
+    tools:context=".ads.AdFragment"
+    tools:ignore="SpeakableTextPresentCheck">
 
-</FrameLayout>
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:gravity="center"
+        >
+
+        <com.appodeal.ads.nativead.NativeAdViewContentStream
+            android:id="@+id/adNative1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/color_3B5E91"
+            />
+
+        <com.appodeal.ads.nativead.NativeAdViewContentStream
+            android:id="@+id/adNative2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/color_3B5E91"
+            />
+
+        <ImageView
+            android:id="@+id/btnClose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:contentDescription="@string/btn_close_discribtion"
+            android:src="@drawable/ic_close_red"
+            android:background="@color/color_3B5E91"
+            android:elevation="10dp"
+            android:visibility="gone"
+            tools:visibility="visible"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</ScrollView>
