@@ -9,6 +9,7 @@ import androidx.core.net.toUri
 
 const val KEY_APP_STORE_LINK = "link"
 const val KEY_AD_DATA = "KEY_AD_DATA_78541"
+const val KEY_REVENUE_PER_AD = "KEY_REVENUE_PER_AD_258741"
 const val KEY_JSON_AD_DATA = "KEY_JSON_AD_DATA_52398"
 
 enum class AdsSource {

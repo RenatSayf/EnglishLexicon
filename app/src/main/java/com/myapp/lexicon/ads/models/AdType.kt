@@ -2,6 +2,7 @@ package com.myapp.lexicon.ads.models
 
 import com.google.firebase.Firebase
 import com.google.firebase.remoteconfig.remoteConfig
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 
 
 enum class AdType(val type: Int) {
@@ -16,6 +17,7 @@ val AD_MAIN: Int
         return try {
             Firebase.remoteConfig.getLong("AD_MAIN").toInt()
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             2
         }
     }
@@ -25,6 +27,7 @@ val AD_SERVICE: Int
         return try {
             Firebase.remoteConfig.getLong("AD_SERVICE").toInt()
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             2
         }
     }
@@ -34,6 +37,7 @@ val AD_TEST: Int
         return try {
             Firebase.remoteConfig.getLong("AD_TEST").toInt()
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             4
         }
     }
@@ -43,6 +47,7 @@ val AD_TRANSLATE: Int
         return try {
             Firebase.remoteConfig.getLong("AD_TRANSLATE").toInt()
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             2
         }
     }
@@ -52,6 +57,7 @@ val AD_VIDEO: Int
         return try {
             Firebase.remoteConfig.getLong("AD_VIDEO").toInt()
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             4
         }
     }

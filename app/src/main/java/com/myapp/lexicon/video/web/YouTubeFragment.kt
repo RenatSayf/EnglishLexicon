@@ -28,13 +28,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
-import com.myapp.lexicon.ads.AdFragment
+import com.myapp.lexicon.ads.NativeAdFragment
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.showAdPopup
-import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.ads.models.AdName
+import com.myapp.lexicon.ads.models.AD_VIDEO
+import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.common.KEY_AD_DATA
-import com.myapp.lexicon.common.KEY_JSON_AD_DATA
+import com.myapp.lexicon.common.KEY_REVENUE_PER_AD
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
 import com.myapp.lexicon.helpers.isNetworkAvailable
 import com.myapp.lexicon.helpers.orientationLock
@@ -42,7 +42,7 @@ import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.toDp
 import com.myapp.lexicon.main.viewmodels.UserViewModel
-import com.myapp.lexicon.models.to2DigitsScale
+import com.myapp.lexicon.models.User
 import com.myapp.lexicon.video.constants.PRETTY_PRINT_URL
 import com.myapp.lexicon.video.constants.VIDEO_URL
 import com.myapp.lexicon.video.extensions.changeHeightAnimatedly
@@ -50,7 +50,6 @@ import com.myapp.lexicon.video.models.Bookmark.Companion.fromString
 import com.myapp.lexicon.video.web.bookmarks.BookmarksDialog
 import com.myapp.lexicon.video.web.models.UrlHistoryItem
 import com.myapp.lexicon.video.web.pref.lastUrl
-import kotlinx.serialization.json.Json
 import java.util.concurrent.TimeUnit
 
 
@@ -238,53 +237,61 @@ class YouTubeFragment : Fragment() {
 
                             bottomBar.changeHeightAnimatedly(5.toDp)
 
-                            if (!AdFragment.isShown) {
+                            if (!NativeAdFragment.isShown) {
+
+                                pbLoadPage.visibility = View.VISIBLE
+                                webView.evaluateJavascript(
+                                    youTubeVM.scriptGetHtmlContent,
+                                    object : ValueCallback<String> {
+                                        override fun onReceiveValue(html: String?) {
+
+                                            youTubeVM.parseIsPlayerPlay(
+                                                rawHtml = html,
+                                                onStart = {
+                                                    requireActivity().orientationLock()
+                                                },
+                                                onComplete = { ex: Exception? ->
+                                                    ex?.let {
+                                                        it.printStackTraceIfDebug()
+                                                        pbLoadPage.visibility = View.GONE
+                                                    }
+                                                    requireActivity().orientationUnLock()
+                                                },
+                                                onPlay = {
+                                                    val url = youTubeVM.playPauseClickScript()
+                                                    webView.loadUrl(url)
+
+                                                },
+                                                onPause = {
+                                                    when(AD_VIDEO) {
+                                                        AdType.NATIVE.type -> {
+                                                            parentFragmentManager.beginTransaction()
+                                                                .add(R.id.frame_to_page_fragm,
+                                                                     NativeAdFragment.newInstance(
+                                                                         onClosed = {
+                                                                             youTubeVM.startAdTimer()
+                                                                         }
+                                                                     )).commit()
+                                                        }
+                                                        AdType.INTERSTITIAL.type -> {
+
+                                                        }
+                                                        AdType.REWARDED.type -> {
+
+                                                        }
+                                                    }
+                                                }
+                                            )
+                                        }
+                                    }
+                                )
+
                                 adPopup = vPopAnchor.showAdPopup(
                                     onClick = {
-                                        pbLoadPage.visibility = View.VISIBLE
-                                        webView.evaluateJavascript(
-                                            youTubeVM.scriptGetHtmlContent,
-                                            object : ValueCallback<String> {
-                                                override fun onReceiveValue(html: String?) {
-                                                    youTubeVM.parseIsPlayerPlay(
-                                                        rawHtml = html,
-                                                        onStart = {
-                                                            requireActivity().orientationLock()
-                                                        },
-                                                        onComplete = { ex: Exception? ->
-                                                            ex?.let {
-                                                                it.printStackTraceIfDebug()
-                                                                pbLoadPage.visibility = View.GONE
-                                                            }
-                                                            requireActivity().orientationUnLock()
-                                                        },
-                                                        onPlay = {
-                                                            val url = youTubeVM.playPauseClickScript()
-                                                            webView.loadUrl(url)
-                                                            parentFragmentManager.beginTransaction()
-                                                                .add(
-                                                                    R.id.frame_to_page_fragm,
-                                                                    AdFragment.newInstance(onCreate = {
-                                                                        pbLoadPage.visibility = View.GONE
-                                                                    })
-                                                                ).commit()
-                                                        },
-                                                        onPause = {
-                                                            parentFragmentManager.beginTransaction()
-                                                                .add(
-                                                                    R.id.frame_to_page_fragm,
-                                                                    AdFragment.newInstance(onCreate = {
-                                                                        pbLoadPage.visibility = View.GONE
-                                                                    })
-                                                                ).commit()
-                                                        }
-                                                    )
-                                                }
-                                            }
-                                        )
+
                                     },
                                     onDismissed = {
-                                        youTubeVM.startAdTimer()
+
                                     }
                                 )
                             }
@@ -394,20 +401,13 @@ class YouTubeFragment : Fragment() {
 
         with(binding!!) {
 
-            setFragmentResultListener(KEY_AD_DATA, listener = {requestKey: String, bundle: Bundle ->
-                val strData = bundle.getString(KEY_JSON_AD_DATA)
-                if (strData != null) {
-                    val adData = try {
-                        Json.decodeFromString<AdData>(strData)
-                    } catch (e: Exception) {
-                        e.printStackTraceIfDebug()
-                        null
-                    }
-                    adData?.let { data: AdData ->
-                        data.adCount = mapOf(AdName.FULL_VIDEO.name to 1)
-                        revenueVM.updateUserRevenueIntoCloud(data)
-                    }
+            setFragmentResultListener(KEY_AD_DATA, listener = { requestKey: String, bundle: Bundle ->
+                val reward = bundle.getDouble(User.KEY_USER_REWARD, 0.0)
+                val revenuePerAd = bundle.getDouble(KEY_REVENUE_PER_AD, 0.0)
+                val user = User(id = "XXX").apply {
+                    userReward = reward
                 }
+                revenueVM.setState(UserViewModel.State.RevenueUpdated(revenuePerAd, user))
             })
 
             setFragmentResultListener(BookmarksDialog.KEY_BOOKMARK_RESULT, listener = {requestKey: String, bundle: Bundle ->
@@ -427,12 +427,12 @@ class YouTubeFragment : Fragment() {
                 when(state) {
                     is UserViewModel.State.ReceivedUserData -> {
                         val rewardText = "${getString(R.string.coins_bag)} " +
-                                "${getString(R.string.text_your_reward)} ${state.user.userReward.to2DigitsScale()} ${state.user.currencySymbol}"
+                                "${getString(R.string.text_your_reward)} ${state.user.userReward.toInt()} ${getString(R.string.emoji_coin)}"
                         tvReward.text = rewardText
                     }
                     is UserViewModel.State.RevenueUpdated -> {
-                        val rewardText = "${getString(R.string.coins_bag)}  +${state.bonus.to2DigitsScale()} ${state.user.currencySymbol}. " +
-                                "${getString(R.string.text_your_reward)} ${state.user.userReward.to2DigitsScale()} ${state.user.currencySymbol}"
+                        val rewardText = "${getString(R.string.coins_bag)}  +${state.bonus.toInt()} ${getString(R.string.emoji_coin)}. " +
+                                "${getString(R.string.text_your_reward)} ${state.user.userReward.toInt()} ${getString(R.string.emoji_coin)}"
                         tvReward.text = rewardText
                         bottomBar.changeHeightAnimatedly(actionBarHeight)
                     }

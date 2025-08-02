@@ -33,7 +33,9 @@ class RevenueViewModel(
     private var _userRevenueLD = MutableLiveData<AppResult>(AppResult.Init)
     val userRevenueLD: LiveData<AppResult> = _userRevenueLD
 
-    override fun updateUserRevenueIntoCloud(adData: AdData) {
+    override fun updateUserRevenueIntoCloud(adData: AdData): LiveData<User> {
+
+        val userLiveData = MutableLiveData<User>()
 
         val currentUser = ParseUser.getCurrentUser()
         if (currentUser is ParseUser) {
@@ -87,6 +89,7 @@ class RevenueViewModel(
                                             val revenue = obj.mapToRevenue()
                                             _userRevenueLD.value = AppResult.Success(revenue)
                                             val user = obj.mapToUser()
+                                            userLiveData.value = user
                                             _state.value = State.RevenueUpdated(adData.revenue * app.userPercentFromPref, user)
                                         }
                                         e is ParseException -> {
@@ -104,6 +107,7 @@ class RevenueViewModel(
                 _userRevenueLD.value = AppResult.Error(Exception(exception))
             }
         }
+        return userLiveData
     }
 
 

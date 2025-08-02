@@ -2,6 +2,7 @@ package com.myapp.lexicon.ads.ext
 
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProvider
 import com.appodeal.ads.Appodeal
 import com.appodeal.ads.BannerCallbacks
 import com.appodeal.ads.InterstitialCallbacks
@@ -15,14 +16,18 @@ import com.appodeal.ads.revenue.AdRevenueCallbacks
 import com.appodeal.ads.revenue.RevenueInfo
 import com.appodeal.ads.revenue.RevenuePlatform
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.Reward
 import com.myapp.lexicon.common.KEY_AD_DATA
-import com.myapp.lexicon.common.KEY_JSON_AD_DATA
+import com.myapp.lexicon.common.KEY_REVENUE_PER_AD
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
-import kotlinx.serialization.json.Json
+import com.myapp.lexicon.models.User
 import kotlin.random.Random
 
+
+
+private const val MULTIPLIER = 1000
 private val DEBUG_REWARD_USD: Double
     get() {
         return Random(System.currentTimeMillis()).nextInt(5, 21) * 0.001
@@ -45,28 +50,26 @@ private fun createTestRevenueInfo(adType: Int, adTypeString: String): RevenueInf
     )
 }
 
-private val jsonEncoder = Json {
-    ignoreUnknownKeys = true
-    explicitNulls = false
-}
+private fun FragmentActivity.setRevenueUpdateResult(revenueInfo: RevenueInfo) {
 
-private fun FragmentActivity.setRevenueInfoResult(revenueInfo: RevenueInfo) {
-
+    val viewModel = ViewModelProvider(this@setRevenueUpdateResult)[RevenueViewModel::class]
     val adData = AdData(
         adType = revenueInfo.adTypeString,
         adUnitId = revenueInfo.demandSource,
         currency = revenueInfo.currency,
         requestId = System.currentTimeMillis().toString(),
-        revenue = revenueInfo.revenue,
-        revenueUSD = revenueInfo.revenue
+        revenue = (revenueInfo.revenue * MULTIPLIER).toInt().toDouble(),
+        revenueUSD = (revenueInfo.revenue * MULTIPLIER).toInt().toDouble()
     )
-
-    val json = jsonEncoder.encodeToString(adData)
-
-    this.supportFragmentManager.setFragmentResult(
-        KEY_AD_DATA,
-        bundleOf(KEY_JSON_AD_DATA to json)
-    )
+    viewModel.updateUserRevenueIntoCloud(adData).observe(this) { user ->
+        this.supportFragmentManager.setFragmentResult(
+            KEY_AD_DATA,
+            bundleOf(
+                User.KEY_USER_REWARD to user.userReward,
+                KEY_REVENUE_PER_AD to adData.revenue
+            )
+        )
+    }
 }
 
 fun FragmentActivity.initAppodealAd(
@@ -85,7 +88,7 @@ fun FragmentActivity.initAppodealAd(
 
                 Appodeal.setAdRevenueCallbacks(object : AdRevenueCallbacks {
                     override fun onAdRevenueReceive(revenueInfo: RevenueInfo) {
-                        this@initAppodealAd.setRevenueInfoResult(revenueInfo)
+                        this@initAppodealAd.setRevenueUpdateResult(revenueInfo)
                     }
                 })
                 onCompleted.invoke()
@@ -136,7 +139,7 @@ fun FragmentActivity.loadAndShowRewardedAd(
             override fun onRewardedVideoShown() {
                 if (BuildConfig.DEBUG) {
                     val testRevenueInfo = createTestRevenueInfo(4, "Rewarded")
-                    this@loadAndShowRewardedAd.setRevenueInfoResult(testRevenueInfo)
+                    this@loadAndShowRewardedAd.setRevenueUpdateResult(testRevenueInfo)
                 }
             }
         })
@@ -147,7 +150,8 @@ fun FragmentActivity.loadAndShowRewardedAd(
     }
 }
 
-fun List<NativeAdView>.showIfLoaded(
+fun FragmentActivity.showNativeAdsIfLoaded(
+    adsList: List<NativeAdView> = listOf(),
     onNotLoaded: () -> Unit = {},
     onShow: () -> Unit = {}
 ) {
@@ -177,13 +181,16 @@ fun List<NativeAdView>.showIfLoaded(
             }
 
             override fun onNativeShown(nativeAd: NativeAd?) {
+                if (BuildConfig.DEBUG) {
+                    val testRevenueInfo = createTestRevenueInfo(2, "Native")
+                    this@showNativeAdsIfLoaded.setRevenueUpdateResult(testRevenueInfo)
+                }
                 onShow.invoke()
             }
-
         })
-        val nativeAds = Appodeal.getNativeAds(this.size)
+        val nativeAds = Appodeal.getNativeAds(adsList.size)
         nativeAds.forEachIndexed { index, ad ->
-            this[index].registerView(ad)
+            adsList[index].registerView(ad)
         }
     }
     else {
@@ -228,7 +235,7 @@ fun FragmentActivity.showInterstitialIfLoaded(
             override fun onInterstitialShown() {
                 if (BuildConfig.DEBUG) {
                     val testRevenueInfo = createTestRevenueInfo(3, "Interstitial")
-                    this@showInterstitialIfLoaded.setRevenueInfoResult(testRevenueInfo)
+                    this@showInterstitialIfLoaded.setRevenueUpdateResult(testRevenueInfo)
                 }
                 onShow.invoke()
             }
@@ -268,7 +275,7 @@ fun FragmentActivity.showBannerViewIfLoaded(bannerId: Int) {
         override fun onBannerShown() {
             if (BuildConfig.DEBUG) {
                 val testRevenueInfo = createTestRevenueInfo(1, "Banner")
-                this@showBannerViewIfLoaded.setRevenueInfoResult(testRevenueInfo)
+                this@showBannerViewIfLoaded.setRevenueUpdateResult(testRevenueInfo)
             }
         }
 

@@ -16,30 +16,27 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.BANNER_TRANSLATE
 import com.myapp.lexicon.ads.INTERSTITIAL_TRANSLATE
-import com.myapp.lexicon.ads.NATIVE_AD_TRANS
+import com.myapp.lexicon.ads.NativeAdFragment
 import com.myapp.lexicon.ads.REWARDED_TRANSLATE_ID
 import com.myapp.lexicon.ads.RevenueViewModel
+import com.myapp.lexicon.ads.ext.loadAndShowRewardedAd
 import com.myapp.lexicon.ads.ext.showBannerViewIfLoaded
-import com.myapp.lexicon.ads.loadBanner
+import com.myapp.lexicon.ads.ext.showInterstitialIfLoaded
 import com.myapp.lexicon.ads.models.AD_TRANSLATE
-import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
-import com.myapp.lexicon.ads.showAd
-import com.myapp.lexicon.ads.startBannersActivity
-import com.myapp.lexicon.ads.startNativeAdsActivity
+import com.myapp.lexicon.common.KEY_AD_DATA
+import com.myapp.lexicon.common.KEY_REVENUE_PER_AD
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
+import com.myapp.lexicon.helpers.showToastIfDebug
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
-import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.orderPlayFromPref
 import com.yandex.mobile.ads.interstitial.InterstitialAd
@@ -66,7 +63,6 @@ class TranslateFragment : Fragment()
         ViewModelProvider(this, factory)[MainViewModel::class.java]
     }
     private val revenueVM: RevenueViewModel by activityViewModels()
-    private val userVM: UserViewModel by activityViewModels()
 
     companion object
     {
@@ -198,6 +194,28 @@ class TranslateFragment : Fragment()
                 }
             }
 
+            setFragmentResultListener(KEY_AD_DATA, listener = {requestKey: String, bundle: Bundle ->
+
+                val reward = bundle.getDouble(User.KEY_USER_REWARD)
+                val revenuePerAd = bundle.getDouble(KEY_REVENUE_PER_AD)
+                val user = User(id = "XXX").apply {
+                    userReward = reward
+                }
+                revenueVM.setState(UserViewModel.State.RevenueUpdated(revenuePerAd, user))
+            })
+
+            revenueVM.state.observe(viewLifecycleOwner) { state ->
+                when(state) {
+                    is UserViewModel.State.Error -> {
+                        requireContext().showToastIfDebug(state.message)
+                    }
+                    is UserViewModel.State.RevenueUpdated -> {
+                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(state.bonus))
+                    }
+                    else -> {}
+                }
+            }
+
             requireActivity().showBannerViewIfLoaded(binding.bannerBottom.id)
 
         }
@@ -228,131 +246,62 @@ class TranslateFragment : Fragment()
             is MainActivity -> {
 
                 when(AD_TRANSLATE) {
-                    AdType.BANNER.type -> {
-                        requireActivity().startBannersActivity(
-                            onImpression = {data: AdData? ->
-                                if (data != null) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
-                                }
-                            },
-                            onDismissed = {bonus: Double ->
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                                parentFragmentManager.popBackStack()
-                            }
-                        )
-                    }
+
                     AdType.NATIVE.type -> {
-                        requireActivity().startNativeAdsActivity(
-                            adId = NATIVE_AD_TRANS,
-                            onImpression = {data: AdData? ->
-                                if (data != null) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
+
+                        parentFragmentManager.beginTransaction()
+                            .add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
+                                onClosed = {
+                                    parentFragmentManager.popBackStack()
                                 }
-                            },
-                            onDismissed = {bonus: Double ->
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                                parentFragmentManager.popBackStack()
-                            }
-                        )
+                            )).commit()
                     }
                     AdType.INTERSTITIAL.type -> {
-                        interstitialAd?.showAd(
-                            requireActivity(),
-                            onImpression = { data ->
-                                if (data is AdData) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
-                                }
-                            },
-                            onDismissed = { bonus: Double ->
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+
+                        requireActivity().showInterstitialIfLoaded(
+                            onClosed = {
                                 parentFragmentManager.popBackStack()
                             }
-                        )?: run {
-                            parentFragmentManager.popBackStack()
-                        }
+                        )
                     }
                     AdType.REWARDED.type -> {
-                        rewardedAd?.showAd(
-                            requireActivity(),
-                            onImpression = { data: AdData? ->
-                                if (data is AdData) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
-                                }
-                            },
-                            onDismissed = {bonus: Double ->
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
+
+                        requireActivity().loadAndShowRewardedAd(
+                            onClosed = {
                                 parentFragmentManager.popBackStack()
                             }
-                        )?: run {
-                            parentFragmentManager.popBackStack()
-                        }
+                        )
                     }
                 }
             }
             is TranslateActivity -> {
 
                 when(AD_TRANSLATE) {
-                    AdType.BANNER.type -> {
-                        requireActivity().startBannersActivity(
-                            onImpression = {data: AdData? ->
-                                if (data != null) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
-                                }
-                            },
-                            onDismissed = {bonus: Double ->
-                                requireActivity().finish()
-                            }
-                        )
-                    }
+
                     AdType.NATIVE.type -> {
-                        requireActivity().startNativeAdsActivity(
-                            onImpression = { data: AdData? ->
-                                if (data != null) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
+
+                        parentFragmentManager.beginTransaction()
+                            .add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
+                                onClosed = {
+                                    requireActivity().finish()
                                 }
-                            },
-                            onDismissed = { bonus: Double ->
-                                requireActivity().finish()
-                            }
-                        )
+                            )).commit()
                     }
                     AdType.INTERSTITIAL.type -> {
-                        interstitialAd?.showAd(
-                            requireActivity(),
-                            onImpression = { data ->
-                                if (data is AdData) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
-                                }
-                            },
-                            onDismissed = {
+
+                        requireActivity().showInterstitialIfLoaded(
+                            onClosed = {
                                 requireActivity().finish()
                             }
-                        )?: run {
-                            requireActivity().finish()
-                        }
+                        )
                     }
                     AdType.REWARDED.type -> {
-                        rewardedAd?.showAd(
-                            requireActivity(),
-                            onImpression = { data: AdData? ->
-                                if (data is AdData) {
-                                    data.adCount = mapOf(AdName.FULL_TRANSLATE.name to 1)
-                                    revenueVM.updateUserRevenueIntoCloud(data)
-                                }
-                            },
-                            onDismissed = {bonus: Double ->
+
+                        requireActivity().loadAndShowRewardedAd(
+                            onClosed = {
                                 requireActivity().finish()
                             }
-                        )?: run {
-                            requireActivity().finish()
-                        }
+                        )
                     }
                 }
             }

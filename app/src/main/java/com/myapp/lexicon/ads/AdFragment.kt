@@ -9,9 +9,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.ads.ext.loadAndShowRewardedAd
-import com.myapp.lexicon.ads.ext.showIfLoaded
+import com.myapp.lexicon.ads.ext.showNativeAdsIfLoaded
 import com.myapp.lexicon.ads.ext.showInterstitialIfLoaded
-import com.myapp.lexicon.ads.models.AD_VIDEO
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.databinding.FragmentAdBinding
 import kotlinx.coroutines.delay
@@ -21,8 +20,16 @@ class AdFragment : Fragment() {
 
     companion object {
         var isShown = false
+        var adType: Int = AdType.INTERSTITIAL.type
+        var onClosed: () -> Unit = {}
 
-        fun newInstance(onCreate: () -> Unit): AdFragment {
+        fun newInstance(
+            adType: Int,
+            onCreate: () -> Unit = {},
+            onClosed: () -> Unit = {}
+        ): AdFragment {
+            this.adType = adType
+            this.onClosed = onClosed
             onCreate.invoke()
             return AdFragment()
         }
@@ -41,15 +48,17 @@ class AdFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        when(AD_VIDEO) {
+        when(adType) {
 
             AdType.NATIVE.type -> {
 
                 with(binding!!) {
 
+                    val adsList = listOf(adNative1, adNative2)
+
                     var failureLoadCount = 0
-                    listOf(adNative1, adNative2)
-                        .showIfLoaded(
+                    requireActivity().showNativeAdsIfLoaded(
+                            adsList = adsList,
                             onNotLoaded = {
                                 failureLoadCount++
                                 if (failureLoadCount >= 2) {
@@ -64,6 +73,7 @@ class AdFragment : Fragment() {
                                         btnClose.visibility = View.VISIBLE
                                         btnClose.setOnClickListener {
                                             removeThisFragmentWithDelay(100)
+                                            onClosed.invoke()
                                         }
                                     }
                                 }
@@ -78,6 +88,7 @@ class AdFragment : Fragment() {
                         removeThisFragmentWithDelay()
                     },
                     onClosed = {
+                        onClosed.invoke()
                         removeThisFragmentWithDelay()
                     }
                 )
@@ -89,9 +100,14 @@ class AdFragment : Fragment() {
                         removeThisFragmentWithDelay()
                     },
                     onClosed = {
+                        onClosed.invoke()
                         removeThisFragmentWithDelay()
                     }
                 )
+            }
+
+            else -> {
+                removeThisFragmentWithDelay()
             }
         }
     }

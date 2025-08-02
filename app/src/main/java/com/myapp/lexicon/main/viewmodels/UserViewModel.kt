@@ -196,7 +196,8 @@ open class UserViewModel(private val app: Application) : AndroidViewModel(app) {
         return result
     }
 
-    open fun updateUserRevenueIntoCloud(adData: AdData) {
+    open fun updateUserRevenueIntoCloud(adData: AdData): LiveData<User> {
+        val userLiveData = MutableLiveData<User>()
         _loadingState.value = LoadingState.Start
         val currentUser = ParseUser.getCurrentUser()
         if (currentUser is ParseUser) {
@@ -236,6 +237,7 @@ open class UserViewModel(private val app: Application) : AndroidViewModel(app) {
                         }
                         else {
                             val user = currentUser.mapToUser()
+                            userLiveData.value = user
                             _user.value = user
                             _state.value = State.RevenueUpdated(adData.revenue, user)
                         }
@@ -253,6 +255,8 @@ open class UserViewModel(private val app: Application) : AndroidViewModel(app) {
             }
         }
         else _loadingState.value = LoadingState.Complete
+
+        return userLiveData
     }
 
 

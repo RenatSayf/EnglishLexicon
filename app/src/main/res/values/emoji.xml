@@ -8,5 +8,6 @@
     <string name="star" translatable="false">⭐</string>
     <string name="warning" translatable="false">⚠️</string>
     <string name="emoji_close" translatable="false">❌</string>
+    <string name="emoji_coin" translatable="false">🪙</string>
     
 </resources>

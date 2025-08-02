@@ -19,6 +19,7 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.INTERSTITIAL_MAIN
+import com.myapp.lexicon.ads.NativeAdFragment
 import com.myapp.lexicon.ads.REWARDED_MAIN_ID
 import com.myapp.lexicon.ads.ext.loadAndShowRewardedAd
 import com.myapp.lexicon.ads.ext.showInterstitialIfLoaded
@@ -319,6 +320,14 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
 
             when(AD_MAIN) {
                 AdType.NATIVE.type -> {
+
+                    parentFragmentManager.beginTransaction()
+                        .add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
+                            onClosed = {
+                                onComplete.invoke()
+                            }
+                        )).commit()
+
                     requireActivity().showInterstitialIfLoaded(
                         onClosed = {
                             onComplete.invoke()
