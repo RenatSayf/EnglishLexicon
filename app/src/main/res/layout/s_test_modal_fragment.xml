@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<androidx.cardview.widget.CardView
     android:id="@+id/layoutRoot"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:maxWidth="280dp"
     android:maxHeight="480dp"
     android:layout_margin="22dp"
-    android:background="@drawable/side_nav_bar"
+    app:cardCornerRadius="16dp"
     >
 
     <LinearLayout
@@ -17,6 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:background="@drawable/bg_round_corners_solid_color"
         tools:ignore="UselessParent">
 
         <LinearLayout
@@ -267,4 +269,5 @@
             />
 
     </LinearLayout>
-</FrameLayout>
+
+</androidx.cardview.widget.CardView>

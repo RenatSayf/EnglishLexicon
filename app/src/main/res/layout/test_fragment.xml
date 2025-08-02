@@ -11,9 +11,10 @@
         android:id="@+id/imgBack"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:src="@drawable/img_uk4"
+        android:contentDescription="@string/descript_image_background"
         android:scaleType="centerCrop"
-        android:contentDescription="@string/descript_image_background"/>
+        android:src="@drawable/img_uk4"
+        tools:ignore="ImageContrastCheck" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -136,7 +137,7 @@
                         android:background="@drawable/transparent_background"
                         android:contentDescription="@string/app_link"
                         android:src="@drawable/selector_icon_microphone"
-                        tools:ignore="TouchTargetSizeCheck" />
+                        tools:ignore="TouchTargetSizeCheck,DuplicateSpeakableTextCheck" />
 
                     <androidx.appcompat.widget.AppCompatAutoCompleteTextView
                         android:id="@+id/editTextView"
@@ -178,7 +179,7 @@
                     style="@style/Base.Widget.AppCompat.ButtonBar"
                     android:background="@drawable/back_semitransparent_white"
                     android:drawableStart="@drawable/ic_check"
-                    />
+                    tools:ignore="VisualLintButtonSize" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/selectVariantBtn"
@@ -194,7 +195,7 @@
                     style="@style/Base.Widget.AppCompat.ButtonBar"
                     android:background="@drawable/text_button_for_test"
                     android:drawableStart="@drawable/ic_visibility"
-                    />
+                    tools:ignore="VisualLintButtonSize" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/btnSoundContainer"
@@ -239,11 +240,16 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </ScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <FrameLayout
+        android:id="@+id/adLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </FrameLayout>
 
 </FrameLayout>

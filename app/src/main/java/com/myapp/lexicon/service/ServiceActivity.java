@@ -80,7 +80,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
-            handleAdvertisingPayload();
+            //handleAdvertisingPayload();
         }
         else {
             authVM = new ViewModelProvider(this).get(AuthViewModel.class);
@@ -93,7 +93,7 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
                             userState.onSignIn(
                                     user -> {
                                         SettingsExtKt.saveUserPercentToPref(this, user);
-                                        handleAdvertisingPayload();
+                                        //handleAdvertisingPayload();
                                         return null;
                                     }
                             );
@@ -129,12 +129,12 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         if (displayMode == 0)
         {
             RepeatDialog modalFragment = RepeatDialog.Companion.newInstance(this);
-            modalFragment.show(getSupportFragmentManager().beginTransaction(), RepeatDialog.Companion.getTAG());
+            getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, modalFragment).commit();
         }
         else if (displayMode == 1)
         {
             TestModeDialog testModalFragment = TestModeDialog.Companion.newInstance(this);
-            testModalFragment.show(getSupportFragmentManager().beginTransaction(), TestModeDialog.Companion.getTAG());
+            getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, testModalFragment).commit();
         }
     }
 

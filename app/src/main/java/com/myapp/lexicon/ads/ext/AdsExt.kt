@@ -62,13 +62,15 @@ private fun FragmentActivity.setRevenueUpdateResult(revenueInfo: RevenueInfo) {
         revenueUSD = (revenueInfo.revenue * MULTIPLIER).toInt().toDouble()
     )
     viewModel.updateUserRevenueIntoCloud(adData).observe(this) { user ->
-        this.supportFragmentManager.setFragmentResult(
-            KEY_AD_DATA,
-            bundleOf(
-                User.KEY_USER_REWARD to user.userReward,
-                KEY_REVENUE_PER_AD to adData.revenue
+        if (user != null) {
+            this.supportFragmentManager.setFragmentResult(
+                KEY_AD_DATA,
+                bundleOf(
+                    User.KEY_USER_REWARD to user.userReward,
+                    KEY_REVENUE_PER_AD to adData.revenue
+                )
             )
-        )
+        }
     }
 }
 

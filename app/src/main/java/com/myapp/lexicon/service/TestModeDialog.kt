@@ -2,7 +2,6 @@
 
 package com.myapp.lexicon.service
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,21 +11,26 @@ import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.CompoundButton
 import androidx.activity.OnBackPressedCallback
-import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.aboutapp.checkAppUpdate
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.BANNER_SERVICE
+import com.myapp.lexicon.ads.NativeAdFragment
 import com.myapp.lexicon.ads.RevenueViewModel
+import com.myapp.lexicon.ads.ext.loadAndShowRewardedAd
 import com.myapp.lexicon.ads.ext.showBannerViewIfLoaded
+import com.myapp.lexicon.ads.ext.showInterstitialIfLoaded
 import com.myapp.lexicon.ads.ext.showUserRewardAnimatedly
-import com.myapp.lexicon.ads.loadBanner
-import com.myapp.lexicon.ads.models.AdName
+import com.myapp.lexicon.ads.models.AD_SERVICE
+import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.common.IS_IMPORTANT_UPDATE
+import com.myapp.lexicon.common.KEY_AD_DATA
+import com.myapp.lexicon.common.KEY_REVENUE_PER_AD
 import com.myapp.lexicon.databinding.STestModalFragmentBinding
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -39,17 +43,15 @@ import com.myapp.lexicon.main.viewmodels.UserViewModel.State.ReceivedUserData
 import com.myapp.lexicon.models.Revenue
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
-import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.models.toWordList
 import com.myapp.lexicon.settings.disablePassiveWordsRepeat
-import com.myapp.lexicon.settings.getAuthDataFromPref
 import com.myapp.lexicon.settings.getOrderPlay
 import com.myapp.lexicon.settings.isUserRegistered
 import java.util.Date
 import java.util.Locale
 
 
-class TestModeDialog : DialogFragment() {
+class TestModeDialog : Fragment() {
 
     companion object {
         val TAG = "${TestModeDialog::class.java.simpleName}.TAG"
@@ -78,14 +80,6 @@ class TestModeDialog : DialogFragment() {
     private var compareList: List<Word> = listOf()
     private var wordIsStudied = false
     private var words: List<Word> = listOf()
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-
-        isCancelable = false
-        return super.onCreateDialog(savedInstanceState).apply {
-            window?.setBackgroundDrawableResource(R.drawable.rounded_corners_background)
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -253,6 +247,28 @@ class TestModeDialog : DialogFragment() {
                 }
             }
 
+            when(AD_SERVICE) {
+                AdType.NATIVE.type -> {
+                    parentFragmentManager.beginTransaction().
+                    add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
+                        onClosed = {}
+                    )).commit()
+                }
+                AdType.INTERSTITIAL.type -> {
+                    requireActivity().showInterstitialIfLoaded()
+                }
+                AdType.REWARDED.type -> {
+                    requireActivity().loadAndShowRewardedAd()
+                }
+            }
+
+            setFragmentResultListener(requestKey = KEY_AD_DATA, listener = { requestKey, bundle ->
+                val revenuePerAd = bundle.getDouble(KEY_REVENUE_PER_AD)
+                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(revenuePerAd))
+            })
+
+            requireActivity().showBannerViewIfLoaded(bannerBottom.id)
+
         }
     }
 
@@ -282,15 +298,15 @@ class TestModeDialog : DialogFragment() {
 
     private fun buildRewardText(user: User) {
 
-        val userReward = user.userReward.to2DigitsScale()
-        val text = "${getString(R.string.coins_bag)} $userReward ${user.currencySymbol}"
+        val userReward = user.userReward.toInt()
+        val text = "${getString(R.string.coins_bag)} $userReward ${getString(R.string.emoji_coin)}"
         binding.tvReward.text = text
     }
 
     private fun buildRewardText(revenue: Revenue) {
 
-        val userReward = revenue.reward.to2DigitsScale()
-        val text = "${getString(R.string.coins_bag)} $userReward ${revenue.currencySymbol}"
+        val userReward = revenue.reward.toInt()
+        val text = "${getString(R.string.coins_bag)} $userReward ${getString(R.string.emoji_coin)}"
         binding.tvReward.text = text
     }
 

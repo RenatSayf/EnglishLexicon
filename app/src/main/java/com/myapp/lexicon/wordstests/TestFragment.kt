@@ -20,6 +20,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.jakewharton.rxbinding2.widget.RxTextView
@@ -27,21 +28,20 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.INTERSTITIAL_TEST
-import com.myapp.lexicon.ads.NATIVE_AD_MAIN
+import com.myapp.lexicon.ads.NativeAdFragment
 import com.myapp.lexicon.ads.REWARDED_TEST_ID
-import com.myapp.lexicon.ads.RevenueViewModel
+import com.myapp.lexicon.ads.ext.loadAndShowRewardedAd
+import com.myapp.lexicon.ads.ext.showInterstitialIfLoaded
 import com.myapp.lexicon.ads.models.AD_TEST
-import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.ads.models.AdName
 import com.myapp.lexicon.ads.models.AdType
-import com.myapp.lexicon.ads.showAd
-import com.myapp.lexicon.ads.startBannersActivity
-import com.myapp.lexicon.ads.startNativeAdsActivity
+import com.myapp.lexicon.common.KEY_AD_DATA
+import com.myapp.lexicon.common.KEY_REVENUE_PER_AD
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.LockOrientation
 import com.myapp.lexicon.helpers.UiState
 import com.myapp.lexicon.helpers.hideKeyboard
+import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showCustomSnackBar
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
 import com.myapp.lexicon.main.SpeechViewModel
@@ -85,8 +85,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         ViewModelProvider(this)[PageBackViewModel::class.java]
     }
     private val adsVM: AdsViewModel by activityViewModels()
-
-    private val revenueVM: RevenueViewModel by activityViewModels()
 
     private val composite = CompositeDisposable()
     private var dialogWarning: DialogWarning? = null
@@ -312,69 +310,27 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                     TestViewModel.State.ShowAd -> {
 
                         when(AD_TEST) {
-                            AdType.BANNER.type -> {
-                                requireActivity().startBannersActivity(
-                                    onImpression = {data: AdData? ->
-                                        if (data != null) {
-                                            data.adCount = mapOf(AdName.FULL_TEST.name to 1)
-                                            revenueVM.updateUserRevenueIntoCloud(data)
-                                        }
-                                    },
-                                    onDismissed = {bonus: Double ->
-                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                                    }
-                                )
-                            }
                             AdType.NATIVE.type -> {
-                                requireActivity().startNativeAdsActivity(
-                                    adId = NATIVE_AD_MAIN,
-                                    onImpression = {data: AdData? ->
-                                        if (data != null) {
-                                            data.adCount = mapOf(AdName.FULL_TEST.name to 1)
-                                            revenueVM.updateUserRevenueIntoCloud(data)
-                                        }
-                                        testVM.setState(TestViewModel.State.Init)
-                                    },
-                                    onDismissed = {bonus: Double ->
-                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                                    }
-                                )
+                                parentFragmentManager.beginTransaction()
+                                    .add(R.id.adLayout, NativeAdFragment.newInstance()).commit()
+
                             }
                             AdType.INTERSTITIAL.type -> {
-                                interstitialAd?.showAd(
-                                    requireActivity(),
-                                    onImpression = { data ->
-                                        if (data != null) {
-                                            data.adCount = mapOf(AdName.FULL_TEST.name to 1)
-                                            revenueVM.updateUserRevenueIntoCloud(data)
-                                        }
-                                        testVM.setState(TestViewModel.State.Init)
-                                    },
-                                    onDismissed = {bonus: Double ->
-                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                                    }
-                                )
+                                requireActivity().showInterstitialIfLoaded()
                             }
                             AdType.REWARDED.type -> {
-                                rewardedAd?.showAd(
-                                    requireActivity(),
-                                    onImpression = {data: AdData? ->
-                                        if (data != null) {
-                                            data.adCount = mapOf(AdName.FULL_TEST.name to 1)
-                                            revenueVM.updateUserRevenueIntoCloud(data)
-                                        }
-                                        testVM.setState(TestViewModel.State.Init)
-                                    },
-                                    onDismissed = { bonus: Double ->
-                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(bonus))
-                                    }
-                                )
+                                requireActivity().loadAndShowRewardedAd()
                             }
                         }
                     }
                     else -> {}
                 }
             }
+
+            setFragmentResultListener(requestKey = KEY_AD_DATA, listener = { requestKey, bundle ->
+                val revenuePerAd = bundle.getDouble(KEY_REVENUE_PER_AD)
+                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(revenuePerAd))
+            })
 
             animVM.animState.observe(viewLifecycleOwner) {
                 when (it) {
@@ -408,6 +364,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 val subList = try {
                     shuffledList?.subList(0, 3)
                 } catch (e: IndexOutOfBoundsException) {
+                    e.printStackTraceIfDebug()
                     shuffledList
                 }
 

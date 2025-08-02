@@ -33,7 +33,7 @@ class RevenueViewModel(
     private var _userRevenueLD = MutableLiveData<AppResult>(AppResult.Init)
     val userRevenueLD: LiveData<AppResult> = _userRevenueLD
 
-    override fun updateUserRevenueIntoCloud(adData: AdData): LiveData<User> {
+    override fun updateUserRevenueIntoCloud(adData: AdData): LiveData<User?> {
 
         val userLiveData = MutableLiveData<User>()
 
