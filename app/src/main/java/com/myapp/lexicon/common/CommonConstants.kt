@@ -5,6 +5,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.remoteconfig.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
+import androidx.core.net.toUri
 
 const val KEY_APP_STORE_LINK = "link"
 const val KEY_AD_DATA = "KEY_AD_DATA_78541"
@@ -72,6 +73,7 @@ val PAYMENT_THRESHOLD: Double
             }
         }
         catch (e: Exception) {
+            e.printStackTraceIfDebug()
             1.0
         }
     }
@@ -86,6 +88,7 @@ val APP_TIME_ZONE: String
                 "Europe/Moscow"
             }
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             "Europe/Moscow"
         }
     }
@@ -97,6 +100,7 @@ val SELF_EMPLOYED_THRESHOLD: Int
                 Firebase.remoteConfig.getDouble("SELF_EMPLOYED_THRESHOLD").toInt()
             } else 20
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             1000
         }
     }
@@ -108,12 +112,12 @@ val SELF_EMPLOYED_PACKAGE: String
 
 val SELF_EMPLOYED_RU_STORE: Uri
     get() {
-        return Uri.parse("https://www.rustore.ru/catalog/app/$SELF_EMPLOYED_PACKAGE")
+        return "https://www.rustore.ru/catalog/app/$SELF_EMPLOYED_PACKAGE".toUri()
     }
 
 val SELF_EMPLOYED_MARKET: Uri
     get() {
-        return Uri.parse("market://details?id=$SELF_EMPLOYED_PACKAGE")
+        return "market://details?id=$SELF_EMPLOYED_PACKAGE".toUri()
     }
 
 val PAYMENT_CHECK_PATTERN: String
@@ -121,6 +125,7 @@ val PAYMENT_CHECK_PATTERN: String
         return try {
             Firebase.remoteConfig.getString("PAYMENT_CHECK_PATTERN")
         } catch (e: Exception) {
+            e.printStackTraceIfDebug()
             "^https://lknpd\\.nalog\\.ru/api/v1/receipt/\\d+/[a-zA-Z0-9]+/print$"
         }
     }
