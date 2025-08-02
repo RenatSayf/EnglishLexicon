@@ -7,6 +7,8 @@ import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 
 const val KEY_APP_STORE_LINK = "link"
+const val KEY_AD_DATA = "KEY_AD_DATA_78541"
+const val KEY_JSON_AD_DATA = "KEY_JSON_AD_DATA_52398"
 
 enum class AdsSource {
     TEST_AD,

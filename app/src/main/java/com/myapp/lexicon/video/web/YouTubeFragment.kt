@@ -33,6 +33,8 @@ import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.showAdPopup
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.AdName
+import com.myapp.lexicon.common.KEY_AD_DATA
+import com.myapp.lexicon.common.KEY_JSON_AD_DATA
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
 import com.myapp.lexicon.helpers.isNetworkAvailable
 import com.myapp.lexicon.helpers.orientationLock
@@ -58,8 +60,6 @@ class YouTubeFragment : Fragment() {
     companion object {
 
         const val KEY_AD_DISMISSED = "KEY_AD_DISMISSED_2548"
-        const val KEY_AD_DATA = "KEY_AD_DATA_78541"
-        const val KEY_JSON_AD_DATA = "KEY_JSON_AD_DATA_52398"
 
         @JvmStatic
         fun newInstance() = YouTubeFragment()
@@ -409,6 +409,7 @@ class YouTubeFragment : Fragment() {
                     }
                 }
             })
+
             setFragmentResultListener(BookmarksDialog.KEY_BOOKMARK_RESULT, listener = {requestKey: String, bundle: Bundle ->
                 val bookmark = bundle.getString(BookmarksDialog.KEY_SELECTED_BOOKMARK)?.fromString()
                 bookmark?.let {

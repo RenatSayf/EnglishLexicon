@@ -47,10 +47,14 @@ class AdFragment : Fragment() {
 
                 with(binding!!) {
 
+                    var failureLoadCount = 0
                     listOf(adNative1, adNative2)
                         .showIfLoaded(
                             onNotLoaded = {
-
+                                failureLoadCount++
+                                if (failureLoadCount >= 2) {
+                                    removeThisFragmentWithDelay(100)
+                                }
                             },
                             onShow = {
                                 if (!isShown) {
@@ -59,7 +63,7 @@ class AdFragment : Fragment() {
                                         delay(5000)
                                         btnClose.visibility = View.VISIBLE
                                         btnClose.setOnClickListener {
-                                            parentFragmentManager.beginTransaction().remove(this@AdFragment).commit()
+                                            removeThisFragmentWithDelay(100)
                                         }
                                     }
                                 }
@@ -71,16 +75,10 @@ class AdFragment : Fragment() {
 
                 requireActivity().showInterstitialIfLoaded(
                     onNotLoaded = {
-                        lifecycleScope.launch {
-                            delay(500)
-                            parentFragmentManager.beginTransaction().remove(this@AdFragment).commit()
-                        }
+                        removeThisFragmentWithDelay()
                     },
                     onClosed = {
-                        lifecycleScope.launch {
-                            delay(500)
-                            parentFragmentManager.beginTransaction().remove(this@AdFragment).commit()
-                        }
+                        removeThisFragmentWithDelay()
                     }
                 )
             }
@@ -88,16 +86,10 @@ class AdFragment : Fragment() {
 
                 requireActivity().loadAndShowRewardedAd(
                     onNotLoaded = {
-                        lifecycleScope.launch {
-                            delay(500)
-                            parentFragmentManager.beginTransaction().remove(this@AdFragment).commit()
-                        }
+                        removeThisFragmentWithDelay()
                     },
                     onClosed = {
-                        lifecycleScope.launch {
-                            delay(500)
-                            parentFragmentManager.beginTransaction().remove(this@AdFragment).commit()
-                        }
+                        removeThisFragmentWithDelay()
                     }
                 )
             }
@@ -110,6 +102,13 @@ class AdFragment : Fragment() {
         isShown = false
 
         super.onDestroy()
+    }
+
+    fun removeThisFragmentWithDelay(timeInMillis: Long = 500) {
+        lifecycleScope.launch {
+            delay(timeInMillis)
+            parentFragmentManager.beginTransaction().remove(this@AdFragment).commit()
+        }
     }
 
 }
