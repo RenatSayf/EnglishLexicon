@@ -153,14 +153,13 @@ fun<T: DialogFragment> AppCompatActivity.showDialogAsSingleton(dialog: T, tag: S
     }
 }
 
-fun startTimer(
-    time: Long,
-    interval: Long = time,
+fun Long.startTimer(
+    interval: Long = this,
     onTick: () -> Unit = {},
     onFinish: () -> Unit
 ): CountDownTimer {
 
-    return object : CountDownTimer(time, interval) {
+    return object : CountDownTimer(this, interval) {
         override fun onTick(millisUntilFinished: Long) {
             onTick.invoke()
         }

@@ -265,6 +265,9 @@ class TranslateFragment : Fragment()
                                     delay(300)
                                     parentFragmentManager.popBackStack()
                                 }
+                            },
+                            onNotLoaded = {
+                                parentFragmentManager.popBackStack()
                             }
                         )
                     }
@@ -272,9 +275,12 @@ class TranslateFragment : Fragment()
                         requireActivity().loadAndShowRewardedAd(
                             onClosed = {
                                 lifecycleScope.launch {
-                                    delay(300)
+                                    delay(500)
                                     parentFragmentManager.popBackStack()
                                 }
+                            },
+                            onNotLoaded = {
+                                parentFragmentManager.popBackStack()
                             }
                         )
                     }
@@ -299,6 +305,9 @@ class TranslateFragment : Fragment()
                                     delay(300)
                                     requireActivity().finish()
                                 }
+                            },
+                            onNotLoaded = {
+                                parentFragmentManager.popBackStack()
                             }
                         )
                     }
@@ -309,6 +318,9 @@ class TranslateFragment : Fragment()
                                     delay(300)
                                     requireActivity().finish()
                                 }
+                            },
+                            onNotLoaded = {
+                                parentFragmentManager.popBackStack()
                             }
                         )
                     }

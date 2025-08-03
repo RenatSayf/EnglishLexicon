@@ -21,6 +21,7 @@ import com.myapp.lexicon.common.MESSAGE_TO_USER
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.showDialogAsSingleton
+import com.myapp.lexicon.helpers.startTimer
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.Speaker
 import com.myapp.lexicon.settings.checkOnStartSpeech
@@ -28,6 +29,7 @@ import com.myapp.lexicon.settings.goToAppStore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 
 @SuppressLint("CustomSplashScreen")
@@ -191,6 +193,13 @@ class SplashActivity : AppCompatActivity() {
                 }), ConfirmDialog.TAG)
             }
         })
+
+        TimeUnit.SECONDS.toMillis(30).startTimer(
+            onFinish = {
+                speechChecked = true
+                adsInitChecked = true
+            }
+        )
 
         lifecycleScope.launch {
             while (!speechChecked || !adsInitChecked) {

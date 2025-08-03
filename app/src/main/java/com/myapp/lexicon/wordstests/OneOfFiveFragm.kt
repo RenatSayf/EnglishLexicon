@@ -342,6 +342,9 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                 AdType.REWARDED.type -> {
 
                     requireActivity().loadAndShowRewardedAd(
+                        onClosed = {
+                            onComplete.invoke()
+                        },
                         onNotLoaded = {
                             onComplete.invoke()
                         }

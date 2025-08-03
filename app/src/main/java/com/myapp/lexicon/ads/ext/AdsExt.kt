@@ -15,7 +15,6 @@ import com.appodeal.ads.nativead.NativeAdView
 import com.appodeal.ads.revenue.AdRevenueCallbacks
 import com.appodeal.ads.revenue.RevenueInfo
 import com.appodeal.ads.revenue.RevenuePlatform
-import com.google.android.play.core.ktx.AppUpdateResult
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.models.AdData
@@ -26,7 +25,6 @@ import com.myapp.lexicon.common.KEY_REVENUE_PER_AD
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.models.User
 import kotlin.random.Random
-
 
 
 private const val MULTIPLIER = 1000
@@ -106,9 +104,6 @@ fun FragmentActivity.loadAndShowRewardedAd(
     onClosed: () -> Unit = {}
 ) {
     if (Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
-        if (Appodeal.canShow(Appodeal.REWARDED_VIDEO)) {
-            Appodeal.show(this, Appodeal.REWARDED_VIDEO)
-        }
 
         Appodeal.setRewardedVideoCallbacks(object : RewardedVideoCallbacks {
 
@@ -147,6 +142,9 @@ fun FragmentActivity.loadAndShowRewardedAd(
                 }
             }
         })
+        if (Appodeal.canShow(Appodeal.REWARDED_VIDEO)) {
+            Appodeal.show(this, Appodeal.REWARDED_VIDEO)
+        }
     }
     else {
         Throwable("******** Rewarded Ad is NOT LOADED ***********").printStackTraceIfDebug()
