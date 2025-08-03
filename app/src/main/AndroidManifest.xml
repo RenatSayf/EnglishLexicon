@@ -33,18 +33,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="s">
-        <activity
-            android:name=".ads.NativeAdsActivity"
-            android:enableOnBackInvokedCallback="true"
-            android:exported="false"
-            android:theme="@style/popAppWindow"
-            tools:targetApi="tiramisu" />
-        <activity
-            android:name=".ads.BannersActivity"
-            android:enableOnBackInvokedCallback="true"
-            android:exported="false"
-            android:theme="@style/popAppWindow"
-            tools:targetApi="tiramisu" />
+
         <activity
             android:name=".splash.SplashActivity"
             android:configChanges="orientation|keyboardHidden"

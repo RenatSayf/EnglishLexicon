@@ -27,9 +27,7 @@ import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.INTERSTITIAL_TEST
 import com.myapp.lexicon.ads.NativeAdFragment
-import com.myapp.lexicon.ads.REWARDED_TEST_ID
 import com.myapp.lexicon.ads.ext.loadAndShowRewardedAd
 import com.myapp.lexicon.ads.ext.showInterstitialIfLoaded
 import com.myapp.lexicon.ads.models.AD_TEST
@@ -50,8 +48,6 @@ import com.myapp.lexicon.settings.getTestStateFromPref
 import com.myapp.lexicon.settings.saveTestStateToPref
 import com.myapp.lexicon.viewmodels.AnimViewModel
 import com.myapp.lexicon.viewmodels.PageBackViewModel
-import com.yandex.mobile.ads.interstitial.InterstitialAd
-import com.yandex.mobile.ads.rewarded.RewardedAd
 import io.reactivex.disposables.CompositeDisposable
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -88,8 +84,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
     private val composite = CompositeDisposable()
     private var dialogWarning: DialogWarning? = null
-    private var interstitialAd: InterstitialAd? = null
-    private var rewardedAd: RewardedAd? = null
 
     private val lockOrientation: LockOrientation by lazy {
         LockOrientation(requireActivity())
@@ -285,25 +279,10 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                 progressValueTV.text = progressValue
             }
 
-            adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-                result.onSuccess { ad ->
-                    interstitialAd = ad
-                }
-            }
-
-            adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
-                result.onSuccess { ad: RewardedAd ->
-                    rewardedAd = ad
-                }
-            }
-
             testVM.state.observe(viewLifecycleOwner) { state ->
                 when (state) {
                     TestViewModel.State.Init -> {
-                        when(AD_TEST) {
-                            AdType.INTERSTITIAL.type -> adsVM.loadInterstitialAd(INTERSTITIAL_TEST)
-                            AdType.REWARDED.type -> adsVM.loadRewardedAd(REWARDED_TEST_ID)
-                        }
+
                     }
 
                     TestViewModel.State.NotShowAd -> {}

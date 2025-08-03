@@ -17,9 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.INTERSTITIAL_TRANSLATE
 import com.myapp.lexicon.ads.NativeAdFragment
-import com.myapp.lexicon.ads.REWARDED_TRANSLATE_ID
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.loadAndShowRewardedAd
 import com.myapp.lexicon.ads.ext.showBannerViewIfLoaded
@@ -40,8 +38,6 @@ import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
 import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.orderPlayFromPref
-import com.yandex.mobile.ads.interstitial.InterstitialAd
-import com.yandex.mobile.ads.rewarded.RewardedAd
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
@@ -54,8 +50,6 @@ class TranslateFragment : Fragment()
 {
     private lateinit var binding: TranslateFragmentBinding
     private lateinit var mActivity: AppCompatActivity
-    private var interstitialAd: InterstitialAd? = null
-    private var rewardedAd: RewardedAd? = null
     private val adsVM: AdsViewModel by activityViewModels()
     private val addWordVM: AddWordViewModel by lazy {
         val factory = AddWordViewModel.Factory(requireContext())
@@ -111,27 +105,6 @@ class TranslateFragment : Fragment()
     {
         super.onViewCreated(view, savedInstanceState)
         binding = TranslateFragmentBinding.bind(view)
-
-        when(AD_TRANSLATE) {
-            AdType.INTERSTITIAL.type -> {
-                adsVM.loadInterstitialAd(INTERSTITIAL_TRANSLATE)
-                adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-                    result.onSuccess { ad: InterstitialAd ->
-                        interstitialAd = ad
-                    }
-                }
-            }
-            AdType.REWARDED.type -> {
-                adsVM.apply {
-                    loadRewardedAd(REWARDED_TRANSLATE_ID)
-                    rewardedAd.observe(viewLifecycleOwner) { result ->
-                        result.onSuccess { ad: RewardedAd ->
-                            this@TranslateFragment.rewardedAd = ad
-                        }
-                    }
-                }
-            }
-        }
 
         val inputText = arguments?.getString(TEXT) ?: ""
 

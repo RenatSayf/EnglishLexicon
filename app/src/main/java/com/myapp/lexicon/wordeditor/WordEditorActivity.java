@@ -25,27 +25,19 @@ import com.appodeal.ads.BannerView;
 import com.google.android.material.snackbar.Snackbar;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.addword.AddWordViewModel;
-import com.myapp.lexicon.ads.AdsViewModelKt;
-import com.myapp.lexicon.ads.BannerAdIdsKt;
 import com.myapp.lexicon.ads.ext.AdsExtKt;
-import com.myapp.lexicon.ads.models.AdName;
 import com.myapp.lexicon.dialogs.ConfirmDialog;
 import com.myapp.lexicon.helpers.ExtensionsKt;
 import com.myapp.lexicon.main.MainViewModel;
 import com.myapp.lexicon.main.SpeechViewModel;
-import com.myapp.lexicon.main.viewmodels.UserViewModel;
-import com.myapp.lexicon.models.User;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordKt;
-import com.myapp.lexicon.settings.SettingsExtKt;
 import com.myapp.lexicon.viewmodels.EditorSearchViewModel;
-import com.yandex.mobile.ads.banner.BannerAdView;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -82,7 +74,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
     private EditorViewModel editorVM;
     private AddWordViewModel addWordVM;
     private SpeechViewModel speechVM;
-    private UserViewModel userVM;
 
     private void initViews()
     {
@@ -142,7 +133,6 @@ public class WordEditorActivity extends AppCompatActivity implements ListViewAda
         editorVM = createEditorViewModel();
         addWordVM = createAddWordViewModel();
         speechVM = createSpeechViewModel();
-        userVM = new ViewModelProvider(WordEditorActivity.this).get(UserViewModel.class);
 
         initViews();
 

@@ -17,11 +17,8 @@ import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
-import com.myapp.lexicon.helpers.printLogIfDebug
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.parse.Parse
-import com.yandex.mobile.ads.common.InitializationListener
-import com.yandex.mobile.ads.common.MobileAds
 
 
 class App : Application(), Configuration.Provider {
@@ -65,13 +62,6 @@ class App : Application(), Configuration.Provider {
                 }
             })
         }
-
-        MobileAds.initialize(this, object : InitializationListener {
-            override fun onInitializationCompleted() {
-                printLogIfDebug("*************** MobileAds initialization successful ***************")
-            }
-        })
-        MobileAds.enableDebugErrorIndicator(BuildConfig.DEBUG)
 
         Parse.initialize(
             Parse.Configuration.Builder(this).apply {

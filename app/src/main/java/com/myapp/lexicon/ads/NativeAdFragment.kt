@@ -13,11 +13,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class NativeAdFragment : Fragment() {
-
     companion object {
-
         var isShown = false
-
         var onShown: () -> Unit = {}
         var onReward: (AdData) -> Unit = {}
         var onClosed: () -> Unit = {}

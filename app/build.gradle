@@ -162,10 +162,6 @@ dependencies {
     // optional - Test helpers
     testImplementation "androidx.work:work-testing:$work_version"
 
-    // Yandex Mobile Ads SDK
-    //noinspection MobileAdsSdkOutdatedVersion
-    implementation 'com.yandex.android:mobileads:7.11.0'
-
     // Appodeal
     implementation("com.appodeal.ads:sdk:3.8.1.0") {
         exclude group: "com.appodeal.ads.sdk.services", module: "adjust"

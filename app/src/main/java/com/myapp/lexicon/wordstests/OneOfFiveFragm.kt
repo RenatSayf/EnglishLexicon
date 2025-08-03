@@ -10,17 +10,13 @@ import android.view.animation.AnimationUtils
 import android.widget.Button
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
-import com.myapp.lexicon.ads.AdsViewModel
-import com.myapp.lexicon.ads.INTERSTITIAL_MAIN
 import com.myapp.lexicon.ads.NativeAdFragment
-import com.myapp.lexicon.ads.REWARDED_MAIN_ID
 import com.myapp.lexicon.ads.ext.loadAndShowRewardedAd
 import com.myapp.lexicon.ads.ext.showInterstitialIfLoaded
 import com.myapp.lexicon.ads.models.AD_MAIN
@@ -32,8 +28,6 @@ import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
-import com.yandex.mobile.ads.interstitial.InterstitialAd
-import com.yandex.mobile.ads.rewarded.RewardedAd
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -47,9 +41,6 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     private lateinit var binding: OneOfFiveFragmNewBinding
     private lateinit var vm: OneOfFiveViewModel
     private lateinit var mActivity: MainActivity
-    private val adsVM: AdsViewModel by activityViewModels()
-    private var interstitialAd: InterstitialAd? = null
-    private var rewardedAd: RewardedAd? = null
 
     private val wordsAdapter: OneFiveTestAdapter by lazy {
         OneFiveTestAdapter().apply {
@@ -101,24 +92,6 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         }
 
         if (!wordList.isNullOrEmpty()) vm.initTest(wordList!!.toList())
-        when(AD_MAIN) {
-            AdType.INTERSTITIAL.type -> {
-                adsVM.loadInterstitialAd(INTERSTITIAL_MAIN)
-                adsVM.interstitialAd.observe(viewLifecycleOwner) { result ->
-                    result.onSuccess { ad: InterstitialAd ->
-                        interstitialAd = ad
-                    }
-                }
-            }
-            AdType.REWARDED.type -> {
-                adsVM.loadRewardedAd(REWARDED_MAIN_ID)
-                adsVM.rewardedAd.observe(viewLifecycleOwner) { result ->
-                    result.onSuccess { ad: RewardedAd ->
-                        rewardedAd = ad
-                    }
-                }
-            }
-        }
 
         vm.adapterList.observe(viewLifecycleOwner) { list ->
             wordsAdapter.addItems(list)
