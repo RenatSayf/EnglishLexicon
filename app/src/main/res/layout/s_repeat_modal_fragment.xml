@@ -8,7 +8,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:maxWidth="280dp"
     android:maxHeight="480dp"
-    android:layout_margin="22dp"
+    android:layout_margin="0dp"
     app:cardCornerRadius="16dp">
 
     <LinearLayout
@@ -174,14 +174,14 @@
                 style="@android:style/Widget.Holo.Light.CompoundButton.CheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_margin="12dp"
-                app:buttonTint="@color/colorWhite"
-                android:text="@string/text_ru"
-                android:textColor="@drawable/selector_white_to_orange_color"
+                android:layout_weight="1"
                 android:background="@drawable/transparent_background_straight_angle"
                 android:checked="false"
-                tools:ignore="NestedWeights" />
+                android:text="@string/text_ru"
+                android:textColor="@drawable/selector_white_to_orange_color"
+                app:buttonTint="@color/colorWhite"
+                tools:ignore="NestedWeights,TouchTargetSizeCheck" />
 
             <ImageButton
                 android:id="@+id/btn_sound_modal"

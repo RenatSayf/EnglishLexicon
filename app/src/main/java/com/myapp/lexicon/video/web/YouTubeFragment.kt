@@ -30,7 +30,8 @@ import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.NativeAdFragment
 import com.myapp.lexicon.ads.RevenueViewModel
-import com.myapp.lexicon.ads.ext.showAdPopup
+import com.myapp.lexicon.ads.ext.loadAndShowRewardedAd
+import com.myapp.lexicon.ads.ext.showInterstitialIfLoaded
 import com.myapp.lexicon.ads.models.AD_VIDEO
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.common.KEY_AD_DATA
@@ -251,18 +252,13 @@ class YouTubeFragment : Fragment() {
                                                     requireActivity().orientationLock()
                                                 },
                                                 onComplete = { ex: Exception? ->
-                                                    ex?.let {
-                                                        it.printStackTraceIfDebug()
-                                                        pbLoadPage.visibility = View.GONE
-                                                    }
+                                                    ex?.printStackTraceIfDebug()
+                                                    pbLoadPage.visibility = View.GONE
                                                     requireActivity().orientationUnLock()
                                                 },
                                                 onPlay = {
                                                     val url = youTubeVM.playPauseClickScript()
                                                     webView.loadUrl(url)
-
-                                                },
-                                                onPause = {
                                                     when(AD_VIDEO) {
                                                         AdType.NATIVE.type -> {
                                                             parentFragmentManager.beginTransaction()
@@ -274,24 +270,26 @@ class YouTubeFragment : Fragment() {
                                                                      )).commit()
                                                         }
                                                         AdType.INTERSTITIAL.type -> {
-
+                                                            requireActivity().showInterstitialIfLoaded(
+                                                                onClosed = {
+                                                                    youTubeVM.startAdTimer()
+                                                                }
+                                                            )
                                                         }
                                                         AdType.REWARDED.type -> {
-
+                                                            requireActivity().loadAndShowRewardedAd(
+                                                                onClosed = {
+                                                                    youTubeVM.startAdTimer()
+                                                                }
+                                                            )
                                                         }
                                                     }
+                                                },
+                                                onPause = {
+
                                                 }
                                             )
                                         }
-                                    }
-                                )
-
-                                adPopup = vPopAnchor.showAdPopup(
-                                    onClick = {
-
-                                    },
-                                    onDismissed = {
-
                                     }
                                 )
                             }

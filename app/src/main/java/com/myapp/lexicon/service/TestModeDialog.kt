@@ -250,7 +250,7 @@ class TestModeDialog : Fragment() {
             when(AD_SERVICE) {
                 AdType.NATIVE.type -> {
                     parentFragmentManager.beginTransaction().
-                    add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
+                    add(R.id.layoutToAd, NativeAdFragment.newInstance(
                         onClosed = {}
                     )).commit()
                 }

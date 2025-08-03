@@ -327,15 +327,6 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                                 onComplete.invoke()
                             }
                         )).commit()
-
-                    requireActivity().showInterstitialIfLoaded(
-                        onClosed = {
-                            onComplete.invoke()
-                        },
-                        onNotLoaded = {
-                            onComplete.invoke()
-                        }
-                    )
                 }
                 AdType.INTERSTITIAL.type -> {
 

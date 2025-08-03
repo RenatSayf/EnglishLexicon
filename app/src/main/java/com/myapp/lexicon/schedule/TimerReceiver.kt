@@ -7,7 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.database.AppDataBase
 import com.myapp.lexicon.helpers.checkIsActivityShown
 import com.myapp.lexicon.helpers.goAsync
@@ -41,7 +43,11 @@ class TimerReceiver : BroadcastReceiver()
             preferences = PreferenceManager.getDefaultSharedPreferences(context)
             val strInterval = preferences?.getString(context.getString(R.string.key_show_intervals), "20")?: "20"
             val longInterval = strInterval.toLong()
-            val millis = TimeUnit.MINUTES.toMillis(longInterval)
+            val millis = if (BuildConfig.ADS_SOURCE != AdsSource.TEST_AD.name) {
+                TimeUnit.MINUTES.toMillis(longInterval)
+            } else {
+                TimeUnit.MINUTES.toMillis(1)
+            }
             AlarmScheduler(context).scheduleOne(millis)
 
             if (intent.action == AlarmScheduler.ONE_SHOOT_ACTION || intent.action == Intent.ACTION_SCREEN_OFF)

@@ -9,7 +9,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:maxWidth="280dp"
     android:maxHeight="480dp"
-    android:layout_margin="22dp"
+    android:layout_margin="0dp"
     app:cardCornerRadius="16dp"
     >
 

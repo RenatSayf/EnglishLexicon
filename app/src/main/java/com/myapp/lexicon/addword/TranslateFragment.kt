@@ -14,6 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.INTERSTITIAL_TRANSLATE
@@ -41,6 +42,8 @@ import com.myapp.lexicon.settings.getWordFromPref
 import com.myapp.lexicon.settings.orderPlayFromPref
 import com.yandex.mobile.ads.interstitial.InterstitialAd
 import com.yandex.mobile.ads.rewarded.RewardedAd
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.net.URLDecoder
 
 
@@ -248,7 +251,6 @@ class TranslateFragment : Fragment()
                 when(AD_TRANSLATE) {
 
                     AdType.NATIVE.type -> {
-
                         parentFragmentManager.beginTransaction()
                             .add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
                                 onClosed = {
@@ -257,18 +259,22 @@ class TranslateFragment : Fragment()
                             )).commit()
                     }
                     AdType.INTERSTITIAL.type -> {
-
                         requireActivity().showInterstitialIfLoaded(
                             onClosed = {
-                                parentFragmentManager.popBackStack()
+                                lifecycleScope.launch {
+                                    delay(300)
+                                    parentFragmentManager.popBackStack()
+                                }
                             }
                         )
                     }
                     AdType.REWARDED.type -> {
-
                         requireActivity().loadAndShowRewardedAd(
                             onClosed = {
-                                parentFragmentManager.popBackStack()
+                                lifecycleScope.launch {
+                                    delay(300)
+                                    parentFragmentManager.popBackStack()
+                                }
                             }
                         )
                     }
@@ -279,7 +285,6 @@ class TranslateFragment : Fragment()
                 when(AD_TRANSLATE) {
 
                     AdType.NATIVE.type -> {
-
                         parentFragmentManager.beginTransaction()
                             .add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
                                 onClosed = {
@@ -288,18 +293,22 @@ class TranslateFragment : Fragment()
                             )).commit()
                     }
                     AdType.INTERSTITIAL.type -> {
-
                         requireActivity().showInterstitialIfLoaded(
                             onClosed = {
-                                requireActivity().finish()
+                                lifecycleScope.launch {
+                                    delay(300)
+                                    requireActivity().finish()
+                                }
                             }
                         )
                     }
                     AdType.REWARDED.type -> {
-
                         requireActivity().loadAndShowRewardedAd(
                             onClosed = {
-                                requireActivity().finish()
+                                lifecycleScope.launch {
+                                    delay(300)
+                                    requireActivity().finish()
+                                }
                             }
                         )
                     }

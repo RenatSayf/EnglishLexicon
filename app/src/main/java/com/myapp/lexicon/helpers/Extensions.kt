@@ -37,6 +37,7 @@ import com.google.firebase.remoteconfig.remoteConfig
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.common.APP_TIME_ZONE
+import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.databinding.SnackBarTestBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.models.Word
@@ -69,7 +70,12 @@ fun Context.alarmClockEnable() {
     val minutesStr = preferences.getString(getString(R.string.key_show_intervals), "0")
     val minutesLong = minutesStr!!.toLong()
     if (minutesLong > 0) {
-        val millis = TimeUnit.MINUTES.toMillis(minutesLong)
+        val millis = if (BuildConfig.ADS_SOURCE != AdsSource.TEST_AD.name) {
+            TimeUnit.MINUTES.toMillis(minutesLong)
+        }
+        else {
+            TimeUnit.MINUTES.toMillis(1)
+        }
         AlarmScheduler(this).scheduleOne(millis)
     }
 }

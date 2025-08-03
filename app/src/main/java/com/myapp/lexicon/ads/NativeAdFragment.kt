@@ -55,6 +55,9 @@ class NativeAdFragment : Fragment() {
 
             requireActivity().showNativeAdsIfLoaded(
                 adsList = listOf(adNative1, adNative2),
+                onNotAvailableAds = {
+                    parentFragmentManager.beginTransaction().remove(this@NativeAdFragment).commit()
+                },
                 onNotLoaded = {
                     failureLoadCount++
                     if (failureLoadCount >= 2) {
@@ -80,6 +83,7 @@ class NativeAdFragment : Fragment() {
 
     override fun onDestroyView() {
 
+        isShown = false
         onClosed.invoke()
 
         super.onDestroyView()

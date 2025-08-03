@@ -9,7 +9,21 @@
     tools:context="com.myapp.lexicon.service.ServiceActivity">
 
     <FrameLayout
-        android:id="@+id/frame_to_page_fragm"
+        android:id="@+id/layoutDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_margin="18dp"
+        >
+<!--        <include-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            tools:layout="@layout/s_repeat_modal_fragment" />-->
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/layoutToAd"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintStart_toStartOf="parent"

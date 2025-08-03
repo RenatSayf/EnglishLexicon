@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.FrameLayout;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.myapp.lexicon.BuildConfig;
 import com.myapp.lexicon.R;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.AdsViewModelKt;
@@ -20,6 +21,7 @@ import com.myapp.lexicon.ads.models.AdName;
 import com.myapp.lexicon.ads.models.AdType;
 import com.myapp.lexicon.ads.models.AdTypeKt;
 import com.myapp.lexicon.auth.AuthViewModel;
+import com.myapp.lexicon.common.AdsSource;
 import com.myapp.lexicon.common.CommonConstantsKt;
 import com.myapp.lexicon.databinding.ServiceDialogActivityBinding;
 import com.myapp.lexicon.helpers.ExtensionsKt;
@@ -33,6 +35,7 @@ import com.yandex.mobile.ads.interstitial.InterstitialAd;
 import com.yandex.mobile.ads.rewarded.RewardedAd;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -129,12 +132,12 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
         if (displayMode == 0)
         {
             RepeatDialog modalFragment = RepeatDialog.Companion.newInstance(this);
-            getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, modalFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.layoutDialog, modalFragment).commit();
         }
         else if (displayMode == 1)
         {
             TestModeDialog testModalFragment = TestModeDialog.Companion.newInstance(this);
-            getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, testModalFragment).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.layoutDialog, testModalFragment).commit();
         }
     }
 
@@ -255,8 +258,16 @@ public class ServiceActivity extends AppCompatActivity implements IModalFragment
     @Override
     protected void onDestroy()
     {
-        long repeatingInterval = SettingsExtKt.getNotificationRepeatingInterval(this);
-        scheduler.scheduleOne(repeatingInterval);
+        //noinspection ConstantValue
+        if (BuildConfig.ADS_SOURCE.equals(AdsSource.TEST_AD.name()))
+        {
+            long millis = TimeUnit.MINUTES.toMillis(1);
+            scheduler.scheduleOne(millis);
+        } else
+        {
+            long repeatingInterval = SettingsExtKt.getNotificationRepeatingInterval(this);
+            scheduler.scheduleOne(repeatingInterval);
+        }
         lastAdShowTime = System.currentTimeMillis();
         interstitialAd = null;
         rewardedAd = null;

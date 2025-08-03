@@ -15,10 +15,12 @@ import com.appodeal.ads.nativead.NativeAdView
 import com.appodeal.ads.revenue.AdRevenueCallbacks
 import com.appodeal.ads.revenue.RevenueInfo
 import com.appodeal.ads.revenue.RevenuePlatform
+import com.google.android.play.core.ktx.AppUpdateResult
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.ads.models.Reward
+import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.common.KEY_AD_DATA
 import com.myapp.lexicon.common.KEY_REVENUE_PER_AD
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -139,7 +141,7 @@ fun FragmentActivity.loadAndShowRewardedAd(
             }
 
             override fun onRewardedVideoShown() {
-                if (BuildConfig.DEBUG) {
+                if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                     val testRevenueInfo = createTestRevenueInfo(4, "Rewarded")
                     this@loadAndShowRewardedAd.setRevenueUpdateResult(testRevenueInfo)
                 }
@@ -154,12 +156,13 @@ fun FragmentActivity.loadAndShowRewardedAd(
 
 fun FragmentActivity.showNativeAdsIfLoaded(
     adsList: List<NativeAdView> = listOf(),
+    onNotAvailableAds: () -> Unit = {},
     onNotLoaded: () -> Unit = {},
     onShow: () -> Unit = {}
 ) {
 
     val adsCount = Appodeal.getAvailableNativeAdsCount()
-    if (adsCount >= 0) {
+    if (adsCount > 0) {
 
         Appodeal.setNativeCallbacks(object : NativeCallbacks {
             override fun onNativeClicked(nativeAd: NativeAd?) {
@@ -183,7 +186,7 @@ fun FragmentActivity.showNativeAdsIfLoaded(
             }
 
             override fun onNativeShown(nativeAd: NativeAd?) {
-                if (BuildConfig.DEBUG) {
+                if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                     val testRevenueInfo = createTestRevenueInfo(2, "Native")
                     this@showNativeAdsIfLoaded.setRevenueUpdateResult(testRevenueInfo)
                 }
@@ -197,7 +200,7 @@ fun FragmentActivity.showNativeAdsIfLoaded(
     }
     else {
         Throwable("******** Native Ad Content Stream is NOT LOADED ***********").printStackTraceIfDebug()
-        onNotLoaded.invoke()
+        onNotAvailableAds.invoke()
     }
 }
 
@@ -235,7 +238,7 @@ fun FragmentActivity.showInterstitialIfLoaded(
             }
 
             override fun onInterstitialShown() {
-                if (BuildConfig.DEBUG) {
+                if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                     val testRevenueInfo = createTestRevenueInfo(3, "Interstitial")
                     this@showInterstitialIfLoaded.setRevenueUpdateResult(testRevenueInfo)
                 }
@@ -275,7 +278,7 @@ fun FragmentActivity.showBannerViewIfLoaded(bannerId: Int) {
         }
 
         override fun onBannerShown() {
-            if (BuildConfig.DEBUG) {
+            if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                 val testRevenueInfo = createTestRevenueInfo(1, "Banner")
                 this@showBannerViewIfLoaded.setRevenueUpdateResult(testRevenueInfo)
             }

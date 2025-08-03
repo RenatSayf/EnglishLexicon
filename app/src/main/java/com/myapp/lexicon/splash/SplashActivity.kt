@@ -14,6 +14,7 @@ import com.appodeal.ads.utils.Log
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.ext.initAppodealAd
+import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.common.IS_REWARD_ACCESSIBLE
 import com.myapp.lexicon.common.KEY_APP_STORE_LINK
 import com.myapp.lexicon.common.MESSAGE_TO_USER
@@ -60,7 +61,10 @@ class SplashActivity : AppCompatActivity() {
         if (BuildConfig.DEBUG) {
             Appodeal.setLogLevel(logLevel = Log.LogLevel.verbose)
         }
-        Appodeal.setTesting(BuildConfig.DEBUG)
+        else {
+            Appodeal.setLogLevel(logLevel = Log.LogLevel.none)
+        }
+        Appodeal.setTesting(BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name)
 
         val adTypes = listOf(
             Appodeal.INTERSTITIAL,
@@ -69,7 +73,7 @@ class SplashActivity : AppCompatActivity() {
             Appodeal.BANNER_VIEW
         )
 
-        adTypes.forEachIndexed(action = {index, type ->
+        adTypes.forEachIndexed(action = { index, type ->
             this@SplashActivity.initAppodealAd(
                 adType = type,
                 onCompleted = {
