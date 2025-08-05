@@ -56,7 +56,7 @@ class AccountFragmentTest {
                 email = "test_email@emai.com"
                 phone = "+79998887755"
                 bankName = "Тест Банк"
-                bankCard = "1111111"
+                walletAddress = "1111111"
                 userReward = 10.0
             }
             MockUserViewModel.testData = user

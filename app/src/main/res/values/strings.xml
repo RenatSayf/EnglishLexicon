@@ -171,7 +171,7 @@
     <string name="test_db_name_1">test_db_1.db</string>
     <string name="test_db_name_2">test_db_2.db</string>
     <string name="test_cloud_token" translatable="false">Test-55555-44444-33333-22222-11111</string>
-    <string name="text_reward_for">Награда за</string>
+    <string name="text_reward_for">Ваша награда</string>
     <string name="text_your_reward">Ваша награда:</string>
     <string name="text_account">Моя награда</string>
     <string name="text_get_reward">Получать вознаграждение</string>
@@ -210,6 +210,7 @@
     <string name="text_to_accept">Принять</string>
     <string name="text_when_awarding">При полученни награды</string>
     <string name="text_bank_card">Номер банковской карты</string>
+    <string name="text_wallet_address">Адрес криптокошелька</string>
     <string name="text_not_money">Недостаточно средств</string>
     <string name="text_to_payment">К выплате за</string>
     <string name="text_prepare_to_payment">Готовится выплата</string>
@@ -323,6 +324,7 @@
     <string name="btn_create_check_text">Создать чек</string>
     <string name="text_open_selfemployed_app">Открыть Мой налог</string>
     <string name="text_message_create_invoice">Для получения награды, необходимо создать чек на выплату в приложении \"Мой налог\". Нажмите кнопку \"Создать чек\" и следуйте дальнейшим инструкциям.</string>
+    <string name="wallet_address_hint">0x0000...XX55</string>
 
 
 </resources>

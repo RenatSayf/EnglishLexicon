@@ -58,7 +58,7 @@ fun ParseObject.mapToUser(): User {
         this.phone = if (value is String) value else this.phone
 
         value = this@mapToUser[User.KEY_BANK_CARD]
-        this.bankCard = if (value is String) value else this.bankCard
+        this.walletAddress = if (value is String) value else this.walletAddress
 
         value = this@mapToUser[User.KEY_BANK_NAME]
         this.bankName = if (value is String) value else this.bankName

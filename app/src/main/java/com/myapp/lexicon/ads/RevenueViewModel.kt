@@ -16,7 +16,6 @@ import com.myapp.lexicon.main.viewmodels.UserViewModel
 import com.myapp.lexicon.models.AppResult
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.to2DigitsScale
-import com.myapp.lexicon.settings.userPercentFromPref
 import com.parse.GetCallback
 import com.parse.ParseException
 import com.parse.ParseObject
@@ -27,7 +26,7 @@ import java.util.Currency
 
 
 class RevenueViewModel(
-    private val app: Application
+    app: Application
 ): UserViewModel(app) {
 
     private var _userRevenueLD = MutableLiveData<AppResult>(AppResult.Init)
@@ -45,7 +44,7 @@ class RevenueViewModel(
                     increment(User.KEY_REVENUE_USD, adData.revenueUSD)
                     increment(User.KEY_TOTAL_REVENUE, adData.revenue)
 
-                    val userReward = adData.revenue * app.userPercentFromPref
+                    val userReward = adData.revenue
                     increment(User.KEY_USER_REWARD, userReward)
                     increment(User.KEY_USER_DAILY_REWARD, userReward)
 
@@ -54,9 +53,6 @@ class RevenueViewModel(
 
                     put(User.KEY_REWARD_UPDATE_AT, System.currentTimeMillis().toStringTime(LOCALE_RU))
 
-                    put(User.KEY_CURRENCY, adData.currency.toString())
-                    val currencySymbol = Currency.getInstance(adData.currency).symbol
-                    put(User.KEY_CURRENCY_SYMBOL, currencySymbol)
                     val currencyRate = (adData.revenue / adData.revenueUSD).to2DigitsScale()
                     put(User.KEY_CURRENCY_RATE, currencyRate)
                     put(User.KEY_APP_VERSION, "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
@@ -90,7 +86,7 @@ class RevenueViewModel(
                                             _userRevenueLD.value = AppResult.Success(revenue)
                                             val user = obj.mapToUser()
                                             userLiveData.value = user
-                                            _state.value = State.RevenueUpdated(adData.revenue * app.userPercentFromPref, user)
+                                            _state.value = State.RevenueUpdated(adData.revenue, user)
                                         }
                                         e is ParseException -> {
                                             _userRevenueLD.value = AppResult.Error(Exception(e.message))

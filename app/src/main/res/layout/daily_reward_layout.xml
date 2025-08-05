@@ -28,7 +28,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:gravity="center"
-        tools:text="+ 23.53 RUB"
+        tools:text="+ 5 🪙"
         android:textColor="@color/colorYellowDark"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

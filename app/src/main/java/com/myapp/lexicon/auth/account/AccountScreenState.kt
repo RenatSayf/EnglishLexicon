@@ -11,12 +11,7 @@ sealed class AccountScreenState {
         val groupPayout: ViewState,
         val messageForUser: ViewState,
         val emailState: ViewState,
-        val phoneState: ViewState,
-        val bankName: ViewState,
-        val cardNumber: ViewState,
-        val firstName: ViewState,
-        val lastName: ViewState,
-        val checkRef: ViewState,
+        val walletAddress: ViewState,
         val btnGetReward: ViewState,
         val rewardCondition: ViewState
     ): AccountScreenState()

@@ -42,7 +42,7 @@ data class User(
     var firstName: String = ""
     var lastName: String = ""
     var phone: String = ""
-    var bankCard: String = ""
+    var walletAddress: String = ""
     var bankName: String = ""
     var revenueUSD: Double = 0.0
     var totalRevenue: Double = 0.0

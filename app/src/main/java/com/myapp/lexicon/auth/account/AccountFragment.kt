@@ -6,12 +6,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.EditText
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.core.view.children
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -21,24 +18,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
+import com.myapp.lexicon.ads.ext.showNativeAdsIfLoaded
 import com.myapp.lexicon.auth.AuthFragment
 import com.myapp.lexicon.auth.AuthViewModel
 import com.myapp.lexicon.auth.agreement.UserAgreementDialog
-import com.myapp.lexicon.auth.invoice.InstallTaxAppFragment
-import com.myapp.lexicon.auth.invoice.PayoutGuideFragment
 import com.myapp.lexicon.common.PAYMENTS_CONDITIONS
-import com.myapp.lexicon.common.PAYMENT_CHECK_PATTERN
-import com.myapp.lexicon.common.SELF_EMPLOYED_PACKAGE
-import com.myapp.lexicon.common.SELF_EMPLOYED_THRESHOLD
-import com.myapp.lexicon.common.getMonthNameFromMillis
 import com.myapp.lexicon.common.getPreviousMonthNameFromMillis
 import com.myapp.lexicon.databinding.FragmentAccountBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.LuhnAlgorithm
-import com.myapp.lexicon.helpers.checkIfAllDigits
-import com.myapp.lexicon.helpers.firstCap
 import com.myapp.lexicon.helpers.isItEmail
-import com.myapp.lexicon.helpers.isItPhone
 import com.myapp.lexicon.helpers.orientationLock
 import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
@@ -52,7 +41,6 @@ import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.ViewState
 import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.clearEmailPasswordInPref
-import com.myapp.lexicon.settings.isAppInstalled
 import com.myapp.lexicon.settings.isFirstLogin
 import com.parse.ParseUser
 import kotlinx.coroutines.launch
@@ -124,15 +112,8 @@ class AccountFragment : Fragment() {
 
             val editTextList = mutableListOf(
                 tvEmailValue,
-                tvPhoneValue,
-                tvBankNameValue,
-                tvFirstNameValue,
-                tvLastNameValue
-            ).apply {
-                if (accountVM.isBankCardRequired) {
-                    add(tvCardNumber)
-                }
-            }
+                tvWalletAddress
+            )
 
             accountVM.screenState.observe(viewLifecycleOwner) { state ->
                 when(state) {
@@ -160,50 +141,16 @@ class AccountFragment : Fragment() {
                                 setSelection(this.text?.length?: 0)
                             }
                         }
-                        tvPhoneValue.apply {
-                            setText(state.phoneState.text)
-                            background = state.phoneState.background
-                            if (state.phoneState.isFocused) {
+                        layoutWalletAddess.apply {
+                            visibility = state.walletAddress.visibility
+                        }
+                        tvWalletAddress.apply {
+                            setText(state.walletAddress.text)
+                            background = state.walletAddress.background
+                            if (state.walletAddress.isFocused) {
                                 requestFocus()
                                 setSelection(this.text?.length?: 0)
                             }
-                        }
-                        tvBankNameValue.apply {
-                            setText(state.bankName.text)
-                            background = state.bankName.background
-                            if (state.bankName.isFocused) {
-                                requestFocus()
-                                setSelection(this.text?.length?: 0)
-                            }
-                        }
-                        tvCardNumber.apply {
-                            setText(state.cardNumber.text)
-                            background = state.cardNumber.background
-                            if (state.cardNumber.isFocused) {
-                                requestFocus()
-                                setSelection(this.text?.length?: 0)
-                            }
-                        }
-                        tvFirstNameValue.apply {
-                            setText(state.firstName.text)
-                            background = state.firstName.background
-                            if (state.firstName.isFocused) {
-                                requestFocus()
-                                setSelection(this.text?.length?: 0)
-                            }
-                        }
-                        tvLastNameValue.apply {
-                            setText(state.lastName.text)
-                            background = state.lastName.background
-                            if (state.lastName.isFocused) {
-                                requestFocus()
-                                setSelection(this.text?.length?: 0)
-                            }
-                        }
-                        layoutCheckRef.visibility = state.checkRef.visibility
-                        tvCheckRefValue.apply {
-                            setText(state.checkRef.text)
-                            background = state.checkRef.background
                         }
                         btnGetReward.apply {
                             isEnabled = state.btnGetReward.isEnabled
@@ -212,16 +159,6 @@ class AccountFragment : Fragment() {
                             text = state.rewardCondition.text
                         }
                     }
-                }
-            }
-
-            accountVM.bankList.observe(viewLifecycleOwner) { result ->
-                result.onSuccess { list ->
-                    val bankListAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, list)
-                    tvBankNameValue.setAdapter(bankListAdapter)
-                }
-                result.onFailure { exception ->
-                    showMultiLineSnackBar(exception.message?: getString(R.string.text_unknown_error_message))
                 }
             }
 
@@ -287,67 +224,13 @@ class AccountFragment : Fragment() {
                     setValidFieldState(tvEmailValue)
                 }
             }
-            tvPhoneValue.doOnTextChanged { text, start, before, count ->
-                val digits = text?.filter {
-                    it.isDigit()
-                }
-                val isPhoneNumber = Regex("^[+]?[0-9]{10,13}$").matches(digits?: "")
-                if (isPhoneNumber) {
-                    setValidFieldState(tvPhoneValue)
-                }
-                else setNotValidFieldState(tvPhoneValue)
-            }
-            tvBankNameValue.doOnTextChanged { text, start, before, count ->
-                if (text.toString().isEmpty()) setNotValidFieldState(tvBankNameValue)
-                accountVM.bankList.value?.onSuccess { list: List<String> ->
-                    if (list.contains(text.toString())) {
-                        setValidFieldState(tvBankNameValue)
-                    }
-                    else {
-                        setNotValidFieldState(tvBankNameValue)
-                    }
-                }
-            }
-            tvCardNumber.doOnTextChanged { text, start, before, count ->
-                val number = tvCardNumber.text.toString()
+            tvWalletAddress.doOnTextChanged { text, start, before, count ->
+                val number = tvWalletAddress.text.toString()
                 val isValidNumber = LuhnAlgorithm.isLuhnChecksumValid(number)
                 if (isValidNumber || text.toString().isEmpty()) {
-                    setValidFieldState(tvCardNumber)
+                    setValidFieldState(tvWalletAddress)
                 }
-                else setNotValidFieldState(tvCardNumber)
-            }
-            tvFirstNameValue.doOnTextChanged { text, start, before, count ->
-                if (text.toString().length > 1) {
-                    setValidFieldState(tvFirstNameValue)
-                }
-                else {
-                    setNotValidFieldState(tvFirstNameValue)
-                }
-            }
-            tvLastNameValue.doOnTextChanged { text, start, before, count ->
-                if (text.toString().length > 1) {
-                    setValidFieldState(tvLastNameValue)
-                }
-                else {
-                    setNotValidFieldState(tvLastNameValue)
-                }
-            }
-            tvCheckRefValue.doOnTextChanged { text, start, before, count ->
-                val reservedPayment = userVM.user.value?.reservedPayment ?: 0.0
-                if (reservedPayment > SELF_EMPLOYED_THRESHOLD) {
-                    val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
-                    if (isMatches == true) {
-                        setValidFieldState(tvCheckRefValue)
-                        tvMessage.apply {
-                            setText("")
-                            visibility = View.GONE
-                        }
-                        btnGetReward.isEnabled = true
-                    }
-                    else {
-                        setInvoiceRequiredState()
-                    }
-                }
+                else setNotValidFieldState(tvWalletAddress)
             }
 
             btnGetReward.setOnClickListener {
@@ -359,74 +242,32 @@ class AccountFragment : Fragment() {
                         return@setOnClickListener
                     }
 
-                    val phone = tvPhoneValue.text.toString()
-                    if (phone.isEmpty() || phone.length < 11 && !phone.startsWith("+79")) {
-                        setReadOnlyState(false)
-                        setNotValidFieldState(tvPhoneValue)
-                        return@setOnClickListener
-                    }
-
                     if (accountVM.isBankCardRequired) {
-                        val number = tvCardNumber.text.toString()
+                        val number = tvWalletAddress.text.toString()
                         if (number.isNotEmpty()) {
                             val isValidNumber = LuhnAlgorithm.isLuhnChecksumValid(number)
                             if (!isValidNumber) {
                                 setReadOnlyState(false)
-                                setNotValidFieldState(tvCardNumber)
+                                setNotValidFieldState(tvWalletAddress)
                                 return@setOnClickListener
                             }
                         }
                         else {
                             setReadOnlyState(false)
-                            setNotValidFieldState(tvCardNumber)
-                            return@setOnClickListener
-                        }
-                    }
-
-                    val bankName = tvBankNameValue.text.toString()
-                    if (bankName.isEmpty()) {
-                        setReadOnlyState(false)
-                        setNotValidFieldState(tvBankNameValue)
-                        return@setOnClickListener
-                    }
-
-                    val firstName = tvFirstNameValue.text.toString()
-                    if (firstName.isEmpty()) {
-                        setReadOnlyState(false)
-                        setNotValidFieldState(tvFirstNameValue)
-                        return@setOnClickListener
-                    }
-
-                    val lastName = tvLastNameValue.text.toString()
-                    if (lastName.isEmpty()) {
-                        setReadOnlyState(false)
-                        setNotValidFieldState(tvLastNameValue)
-                        return@setOnClickListener
-                    }
-
-                    val reservedPayment = userVM.user.value?.reservedPayment ?: 0.0
-                    if (reservedPayment > SELF_EMPLOYED_THRESHOLD) {
-                        val isMatches = tvCheckRefValue.text?.matches(Regex(PAYMENT_CHECK_PATTERN))
-                        if (isMatches == false) {
-                            setReadOnlyState(false)
-                            setInvoiceRequiredState()
+                            setNotValidFieldState(tvWalletAddress)
                             return@setOnClickListener
                         }
                     }
 
                     val requisitesMap = mutableMapOf(
-                        User.KEY_PHONE to tvPhoneValue.text.toString().trim(),
-                        User.KEY_BANK_NAME to tvBankNameValue.text.toString().trim(),
-                        User.KEY_BANK_CARD to tvCardNumber.text.toString().trim(),
-                        User.KEY_FIRST_NAME to tvFirstNameValue.text.toString().trim().firstCap(),
-                        User.KEY_LAST_NAME to tvLastNameValue.text.toString().trim().firstCap()
+                        User.KEY_BANK_CARD to tvWalletAddress.text.toString().trim()
                     )
 
                     val payoutMap = Payout(
                         reservedSum = 0,
                         payoutSum = user.reservedPayment.toInt(),
                         payoutTime = System.currentTimeMillis(),
-                        checkReference = tvCheckRefValue.text.toString()
+                        checkReference = ""
                     ).toMap().toMutableMap()
 
                     payoutMap.putAll(requisitesMap)
@@ -463,10 +304,6 @@ class AccountFragment : Fragment() {
                 }
             }
 
-            btnCreateCheck.setOnClickListener {
-                userVM.user.value?.let { usr -> checkIfSelfEmployedAppInstalled(usr) }
-            }
-
             btnLogOut.setOnClickListener {
                 showLogoutDialog()
             }
@@ -492,11 +329,7 @@ class AccountFragment : Fragment() {
                             }
                             val userMap = mapOf<String, Any>(
                                 User.KEY_EMAIL to tvEmailValue.text.toString(),
-                                User.KEY_PHONE to tvPhoneValue.text.toString(),
-                                User.KEY_BANK_NAME to tvBankNameValue.text.toString(),
-                                User.KEY_BANK_CARD to tvCardNumber.text.toString(),
-                                User.KEY_FIRST_NAME to tvFirstNameValue.text.toString().firstCap(),
-                                User.KEY_LAST_NAME to tvLastNameValue.text.toString().firstCap()
+                                User.KEY_BANK_CARD to tvWalletAddress.text.toString()
                             )
                             userVM.updateUserDataIntoCloud(userMap)
                             setReadOnlyState()
@@ -518,6 +351,8 @@ class AccountFragment : Fragment() {
                 goBack()
             }
 
+            requireActivity().showNativeAdsIfLoaded(listOf(adNative))
+
         }
     }
 
@@ -525,8 +360,7 @@ class AccountFragment : Fragment() {
 
         with(binding) {
 
-            val currentMonth = timeInMillisMoscowTimeZone.getMonthNameFromMillis()
-            val rewardToDisplay = "${getString(R.string.text_reward_for)} $currentMonth: ${(user.userReward).to2DigitsScale()} ${user.currencySymbol}"
+            val rewardToDisplay = "${getString(R.string.text_reward_for)}: ${user.userReward.toInt()} ${getString(R.string.emoji_coin)}"
             tvRewardValue.text = rewardToDisplay
 
             if (user.reservedPayment > 0) {
@@ -549,7 +383,7 @@ class AccountFragment : Fragment() {
                 if (yesterdayReward > 0.0) {
                     dailyRewardRoot.visibility = View.VISIBLE
                     tvTitle.text = getString(R.string.text_yesterday)
-                    val valueToDisplay = "+$yesterdayReward ${user.currencySymbol}"
+                    val valueToDisplay = "+$yesterdayReward ${getString(R.string.emoji_coin)}"
                     tvValue.text = valueToDisplay
                 }
                 else {
@@ -562,7 +396,7 @@ class AccountFragment : Fragment() {
                 if (todayReward > 0.0) {
                     dailyRewardRoot.visibility = View.VISIBLE
                     tvTitle.text = getString(R.string.text_today)
-                    val valueToDisplay = "+$todayReward ${user.currencySymbol}"
+                    val valueToDisplay = "+$todayReward ${getString(R.string.emoji_coin)}"
                     tvValue.text = valueToDisplay
                 }
                 else {
@@ -573,31 +407,6 @@ class AccountFragment : Fragment() {
             tvEmailValue.setText(user.email)
             if (!user.email.isItEmail) setNotValidFieldState(tvEmailValue)
 
-            if (user.phone.isItPhone) {
-                layoutPhone.visibility = View.VISIBLE
-                tvPhoneValue.setText(user.phone)
-            }
-
-            if (user.bankName.isNotEmpty()) {
-                layoutBankName.visibility = View.VISIBLE
-                tvBankNameValue.setText(user.bankName)
-            }
-
-            if (accountVM.isBankCardRequired && user.bankCard.checkIfAllDigits()) {
-                layoutBankCard.visibility = View.VISIBLE
-                tvCardNumber.setText(user.bankCard)
-            }
-
-            if (user.firstName.isNotEmpty()) {
-                layoutFirstName.visibility = View.VISIBLE
-                tvFirstNameValue.setText(user.firstName)
-            }
-
-            if (user.lastName.isNotEmpty()) {
-                layoutLastName.visibility = View.VISIBLE
-                tvLastNameValue.setText(user.lastName)
-            }
-
             val rewardThreshold = (accountVM.paymentThreshold * user.currencyRate).toInt()
             val textCondition = "$PAYMENTS_CONDITIONS $rewardThreshold ${user.currencySymbol}"
             tvRewardCondition.text = textCondition
@@ -607,8 +416,13 @@ class AccountFragment : Fragment() {
             else tvRewardCondition.visibility = View.VISIBLE
 
             btnGetReward.isEnabled = user.reservedPayment > rewardThreshold && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()
-            if (user.reservedPayment > SELF_EMPLOYED_THRESHOLD) {
-                setInvoiceRequiredState()
+
+            if (btnGetReward.isEnabled && accountVM.paymentCode == BuildConfig.PAYMENT_CODE.trim()) {
+                layoutWalletAddess.visibility = View.VISIBLE
+                tvWalletAddress.setText(user.walletAddress)
+            }
+            else {
+                layoutWalletAddess.visibility = View.GONE
             }
         }
     }
@@ -626,28 +440,6 @@ class AccountFragment : Fragment() {
         }
     }
 
-    private fun setInvoiceRequiredState() {
-        with(binding) {
-            root.children.forEach { view: View ->
-                if (view is EditText) {
-                    view.isEnabled = true
-                }
-            }
-            layoutPhone.visibility = View.VISIBLE
-            layoutBankName.visibility = View.VISIBLE
-            layoutFirstName.visibility = View.VISIBLE
-            layoutLastName.visibility = View.VISIBLE
-            layoutCheckRef.visibility = View.VISIBLE
-            tvCheckRefValue.background = ContextCompat.getDrawable(requireContext(), R.drawable.bg_horizontal_oval_error)
-            btnGetReward.isEnabled = false
-            val messageToUser = getString(R.string.text_message_create_invoice)
-            tvMessage.apply {
-                text = messageToUser
-                visibility = View.VISIBLE
-            }
-        }
-    }
-
     private fun setReadOnlyState(flag: Boolean = true) {
         with(binding) {
             toolBar.menu.findItem(R.id.menu_edit)?.isVisible = flag
@@ -655,18 +447,10 @@ class AccountFragment : Fragment() {
             tvEmailValue.apply {
                 isEnabled = !flag
             }
-            layoutPhone.visibility = View.VISIBLE
-            tvPhoneValue.isEnabled = !flag
-            layoutBankName.visibility = View.VISIBLE
-            tvBankNameValue.isEnabled = !flag
             if (accountVM.isBankCardRequired){
-                layoutBankCard.visibility = View.VISIBLE
-                tvCardNumber.isEnabled = !flag
+                layoutWalletAddess.visibility = View.VISIBLE
+                tvWalletAddress.isEnabled = !flag
             }
-            layoutFirstName.visibility = View.VISIBLE
-            tvFirstNameValue.isEnabled = !flag
-            layoutLastName.visibility = View.VISIBLE
-            tvLastNameValue.isEnabled = !flag
         }
     }
 
@@ -763,36 +547,10 @@ class AccountFragment : Fragment() {
                         isFocused = tvEmailValue.isFocused,
                         background = tvEmailValue.background
                     ),
-                    phoneState = ViewState(
-                        text = tvPhoneValue.text.toString(),
-                        isEnabled = tvPhoneValue.isEnabled,
-                        background = tvPhoneValue.background,
-                        visibility = tvPhoneValue.visibility
-                    ),
-                    bankName = ViewState(
-                        text = tvBankNameValue.text.toString(),
-                        background = tvBankNameValue.background,
-                        visibility = tvBankNameValue.visibility
-                    ),
-                    cardNumber = ViewState(
-                        text = tvCardNumber.text.toString(),
-                        background = tvCardNumber.background,
-                        visibility = tvCardNumber.visibility
-                    ),
-                    firstName = ViewState(
-                        text = tvFirstNameValue.text.toString(),
-                        background = tvFirstNameValue.background,
-                        visibility = tvFirstNameValue.visibility
-                    ),
-                    lastName = ViewState(
-                        text = tvLastNameValue.text.toString(),
-                        background = tvLastNameValue.background,
-                        visibility = tvLastNameValue.visibility
-                    ),
-                    checkRef = ViewState(
-                        text = tvCheckRefValue.text.toString(),
-                        background = tvCheckRefValue.background,
-                        visibility = layoutCheckRef.visibility
+                    walletAddress = ViewState(
+                        text = tvWalletAddress.text.toString(),
+                        background = tvWalletAddress.background,
+                        visibility = tvWalletAddress.visibility
                     ),
                     btnGetReward = ViewState(isEnabled = btnGetReward.isEnabled),
                     rewardCondition = ViewState(text = tvRewardCondition.text.toString())
@@ -870,24 +628,9 @@ class AccountFragment : Fragment() {
                 "${getString(R.string.text_amount)}: ${user.requiresPayment} ${user.currencySymbol}, " +
                 "${getString(R.string.title_phone)}: ${user.phone}, " +
                 "${getString(R.string.title_e_mail)}: ${user.email}, " +
-                "${getString(R.string.text_bank_card)}: ${user.bankCard}, " +
+                "${getString(R.string.text_bank_card)}: ${user.walletAddress}, " +
                 "${getString(R.string.text_bank_name)}: ${user.bankName}. " +
                 "${getString(R.string.text_check_ref)}: ${user.checkReference}"
-    }
-
-    private fun checkIfSelfEmployedAppInstalled(user: User) {
-        val isInstalled = requireContext().isAppInstalled(SELF_EMPLOYED_PACKAGE)
-        if (isInstalled) {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.frame_to_page_fragm, PayoutGuideFragment.newInstance(user))
-                .addToBackStack(null)
-                .commit()
-        } else {
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.frame_to_page_fragm, InstallTaxAppFragment.newInstance())
-                .addToBackStack(null)
-                .commit()
-        }
     }
 
 
