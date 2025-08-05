@@ -16,9 +16,9 @@ import com.appodeal.ads.revenue.AdRevenueCallbacks
 import com.appodeal.ads.revenue.RevenueInfo
 import com.appodeal.ads.revenue.RevenuePlatform
 import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.models.AdData
-import com.myapp.lexicon.ads.models.Reward
 import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.common.KEY_AD_DATA
 import com.myapp.lexicon.common.KEY_REVENUE_PER_AD
@@ -30,8 +30,12 @@ import kotlin.random.Random
 private const val MULTIPLIER = 1000
 private val DEBUG_REWARD_USD: Double
     get() {
-        return Random(System.currentTimeMillis()).nextInt(5, 21) * 0.001
+        return Random(System.currentTimeMillis()).nextInt(1, 12) * 0.001
     }
+
+private var coins: Int = 0
+
+private var adsVM: AdsViewModel? = null
 
 private fun createTestRevenueInfo(adType: Int, adTypeString: String): RevenueInfo {
     return RevenueInfo(
@@ -59,8 +63,11 @@ private fun FragmentActivity.setRevenueUpdateResult(revenueInfo: RevenueInfo) {
         currency = revenueInfo.currency,
         requestId = System.currentTimeMillis().toString(),
         revenue = (revenueInfo.revenue * MULTIPLIER).toInt().toDouble(),
-        revenueUSD = (revenueInfo.revenue * MULTIPLIER).toInt().toDouble()
+        revenueUSD = revenueInfo.revenue
     )
+    coins = 0
+    coins = adData.revenue.toInt()
+    adsVM?.setAdReward(coins)
     viewModel.updateUserRevenueIntoCloud(adData).observe(this) { user ->
         if (user != null) {
             this.supportFragmentManager.setFragmentResult(
@@ -101,9 +108,11 @@ fun FragmentActivity.initAppodealAd(
 
 fun FragmentActivity.loadAndShowRewardedAd(
     onNotLoaded: () -> Unit = {},
-    onClosed: () -> Unit = {}
+    onClosed: (coins: Int) -> Unit = {}
 ) {
     if (Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
+
+        adsVM = ViewModelProvider(this@loadAndShowRewardedAd)[AdsViewModel::class]
 
         Appodeal.setRewardedVideoCallbacks(object : RewardedVideoCallbacks {
 
@@ -112,7 +121,7 @@ fun FragmentActivity.loadAndShowRewardedAd(
             }
 
             override fun onRewardedVideoClosed(finished: Boolean) {
-                onClosed.invoke()
+                onClosed.invoke(coins)
             }
 
             override fun onRewardedVideoExpired() {
@@ -162,6 +171,8 @@ fun FragmentActivity.showNativeAdsIfLoaded(
     val adsCount = Appodeal.getAvailableNativeAdsCount()
     if (adsCount > 0) {
 
+        adsVM = ViewModelProvider(this@showNativeAdsIfLoaded)[AdsViewModel::class]
+
         Appodeal.setNativeCallbacks(object : NativeCallbacks {
             override fun onNativeClicked(nativeAd: NativeAd?) {
                 return
@@ -204,11 +215,13 @@ fun FragmentActivity.showNativeAdsIfLoaded(
 
 fun FragmentActivity.showInterstitialIfLoaded(
     onShow: () -> Unit = {},
-    onClosed: (reward: Reward?) -> Unit = {},
+    onClosed: (coins: Int) -> Unit = {},
     onNotLoaded: () -> Unit = {}
 ) {
     val loaded = Appodeal.isLoaded(Appodeal.INTERSTITIAL)
     if (loaded) {
+
+        adsVM = ViewModelProvider(this@showInterstitialIfLoaded)[AdsViewModel::class]
 
         Appodeal.setInterstitialCallbacks(object : InterstitialCallbacks {
             override fun onInterstitialClicked() {
@@ -216,7 +229,7 @@ fun FragmentActivity.showInterstitialIfLoaded(
             }
 
             override fun onInterstitialClosed() {
-                onClosed.invoke(null)
+                onClosed.invoke(coins)
             }
 
             override fun onInterstitialExpired() {

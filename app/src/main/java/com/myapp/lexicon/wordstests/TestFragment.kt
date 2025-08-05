@@ -291,14 +291,26 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                         when(AD_TEST) {
                             AdType.NATIVE.type -> {
                                 parentFragmentManager.beginTransaction()
-                                    .add(R.id.adLayout, NativeAdFragment.newInstance()).commit()
+                                    .add(R.id.adLayout, NativeAdFragment.newInstance(
+                                        onClosed = { coins ->
+                                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
+                                        }
+                                    )).commit()
 
                             }
                             AdType.INTERSTITIAL.type -> {
-                                requireActivity().showInterstitialIfLoaded()
+                                requireActivity().showInterstitialIfLoaded(
+                                    onClosed = { coins ->
+                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
+                                    }
+                                )
                             }
                             AdType.REWARDED.type -> {
-                                requireActivity().loadAndShowRewardedAd()
+                                requireActivity().loadAndShowRewardedAd(
+                                    onClosed = { coins ->
+                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
+                                    }
+                                )
                             }
                         }
                     }
@@ -307,8 +319,8 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
             }
 
             setFragmentResultListener(requestKey = KEY_AD_DATA, listener = { requestKey, bundle ->
-                val revenuePerAd = bundle.getDouble(KEY_REVENUE_PER_AD)
-                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(revenuePerAd))
+                //val revenuePerAd = bundle.getDouble(KEY_REVENUE_PER_AD)
+                //adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(revenuePerAd))
             })
 
             animVM.animState.observe(viewLifecycleOwner) {

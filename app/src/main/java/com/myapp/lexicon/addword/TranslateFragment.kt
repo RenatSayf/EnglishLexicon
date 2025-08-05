@@ -24,8 +24,6 @@ import com.myapp.lexicon.ads.ext.showBannerViewIfLoaded
 import com.myapp.lexicon.ads.ext.showInterstitialIfLoaded
 import com.myapp.lexicon.ads.models.AD_TRANSLATE
 import com.myapp.lexicon.ads.models.AdType
-import com.myapp.lexicon.common.KEY_AD_DATA
-import com.myapp.lexicon.common.KEY_REVENUE_PER_AD
 import com.myapp.lexicon.databinding.TranslateFragmentBinding
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.showMultiLineSnackBar
@@ -33,7 +31,6 @@ import com.myapp.lexicon.helpers.showToastIfDebug
 import com.myapp.lexicon.main.MainActivity
 import com.myapp.lexicon.main.MainViewModel
 import com.myapp.lexicon.main.viewmodels.UserViewModel
-import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.models.toWord
 import com.myapp.lexicon.settings.getWordFromPref
@@ -170,23 +167,10 @@ class TranslateFragment : Fragment()
                 }
             }
 
-            setFragmentResultListener(KEY_AD_DATA, listener = {requestKey: String, bundle: Bundle ->
-
-                val reward = bundle.getDouble(User.KEY_USER_REWARD)
-                val revenuePerAd = bundle.getDouble(KEY_REVENUE_PER_AD)
-                val user = User(id = "XXX").apply {
-                    userReward = reward
-                }
-                revenueVM.setState(UserViewModel.State.RevenueUpdated(revenuePerAd, user))
-            })
-
             revenueVM.state.observe(viewLifecycleOwner) { state ->
                 when(state) {
                     is UserViewModel.State.Error -> {
                         requireContext().showToastIfDebug(state.message)
-                    }
-                    is UserViewModel.State.RevenueUpdated -> {
-                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(state.bonus))
                     }
                     else -> {}
                 }
@@ -226,14 +210,16 @@ class TranslateFragment : Fragment()
                     AdType.NATIVE.type -> {
                         parentFragmentManager.beginTransaction()
                             .add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
-                                onClosed = {
+                                onClosed = { coins ->
+                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
                                     parentFragmentManager.popBackStack()
                                 }
                             )).commit()
                     }
                     AdType.INTERSTITIAL.type -> {
                         requireActivity().showInterstitialIfLoaded(
-                            onClosed = {
+                            onClosed = { coins ->
+                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
                                 lifecycleScope.launch {
                                     delay(300)
                                     parentFragmentManager.popBackStack()
@@ -246,7 +232,8 @@ class TranslateFragment : Fragment()
                     }
                     AdType.REWARDED.type -> {
                         requireActivity().loadAndShowRewardedAd(
-                            onClosed = {
+                            onClosed = { coins ->
+                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
                                 lifecycleScope.launch {
                                     delay(500)
                                     parentFragmentManager.popBackStack()
@@ -266,14 +253,14 @@ class TranslateFragment : Fragment()
                     AdType.NATIVE.type -> {
                         parentFragmentManager.beginTransaction()
                             .add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
-                                onClosed = {
+                                onClosed = { coins ->
                                     requireActivity().finish()
                                 }
                             )).commit()
                     }
                     AdType.INTERSTITIAL.type -> {
                         requireActivity().showInterstitialIfLoaded(
-                            onClosed = {
+                            onClosed = { coins ->
                                 lifecycleScope.launch {
                                     delay(300)
                                     requireActivity().finish()
@@ -286,7 +273,7 @@ class TranslateFragment : Fragment()
                     }
                     AdType.REWARDED.type -> {
                         requireActivity().loadAndShowRewardedAd(
-                            onClosed = {
+                            onClosed = { coins ->
                                 lifecycleScope.launch {
                                     delay(300)
                                     requireActivity().finish()

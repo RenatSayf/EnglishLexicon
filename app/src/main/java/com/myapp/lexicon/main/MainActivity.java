@@ -35,7 +35,6 @@ import com.myapp.lexicon.auth.AuthViewModel;
 import com.myapp.lexicon.auth.account.AccountFragment;
 import com.myapp.lexicon.auth.account.AccountViewModel;
 import com.myapp.lexicon.common.CommonConstantsKt;
-import com.myapp.lexicon.common.TimeExtKt;
 import com.myapp.lexicon.database.AppDataBase;
 import com.myapp.lexicon.databinding.AContentMainBinding;
 import com.myapp.lexicon.databinding.ANavigMainBinding;
@@ -52,7 +51,6 @@ import com.myapp.lexicon.main.viewmodels.UserViewModel;
 import com.myapp.lexicon.models.AppResult;
 import com.myapp.lexicon.models.Revenue;
 import com.myapp.lexicon.models.User;
-import com.myapp.lexicon.models.UserKt;
 import com.myapp.lexicon.models.Word;
 import com.myapp.lexicon.models.WordList;
 import com.myapp.lexicon.repository.DataRepositoryImpl;
@@ -68,7 +66,6 @@ import com.myapp.lexicon.wordstests.TestFragment;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
-import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -546,12 +543,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String text = "";
             try
             {
-                String currentMonth = TimeExtKt.getMonthNameFromMillis(ExtensionsKt.getTimeInMillisMoscowTimeZone());
-                double rewardToDisplay = (revenue != null) ? UserKt.to2DigitsScale(revenue.getReward()) : 0.0;
-                text = getString(R.string.coins_bag).concat(" ")
-                        .concat(currentMonth).concat(" ")
-                        .concat(String.valueOf(rewardToDisplay)).concat(" ")
-                        .concat((revenue != null) ? revenue.getCurrencySymbol() : Currency.getInstance("RUB").getSymbol());
+                int rewardToDisplay = (revenue != null) ? (int)revenue.getReward() : 0;
+                if (rewardToDisplay > 0)
+                {
+                    text = getString(R.string.coins_bag).concat(" ")
+                            .concat(String.valueOf(rewardToDisplay)).concat(" ")
+                            .concat(getString(R.string.emoji_coin));
+                } else
+                {
+                    text = getString(R.string.coins_bag).concat(" ")
+                            .concat(String.valueOf(rewardToDisplay));
+                }
                 TextView tvSubTitle = toolbarBinding.tvSubtitle;
                 tvSubTitle.setText(text);
             } catch (Exception e)
@@ -1026,9 +1028,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int bottom = tvSubTitle.getBottom();
         Pair<Integer, Integer> coordinates = new Pair<>(x, top + ((top - bottom)/2));
         FrameLayout frameLayout = contentBinding.frameToPageFragm;
+        int coins = (int) Math.floor(bonus);
         com.myapp.lexicon.ads.ext.ExtensionsKt.showUserRewardAnimatedly(
                 frameLayout,
-                String.valueOf(bonus),
+                String.valueOf(coins),
                 coordinates
         );
     }

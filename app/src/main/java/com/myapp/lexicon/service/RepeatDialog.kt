@@ -219,7 +219,7 @@ class RepeatDialog: Fragment() {
                     val bonus = state.bonus
                     if (bonus > 0.0) {
                         val coordinates = Pair(btnOpenApp.right + 55, btnOpenApp.top + 15)
-                        layoutRoot.showUserRewardAnimatedly(bonus.toString(), coordinates)
+                        layoutRoot.showUserRewardAnimatedly(bonus.toInt().toString(), coordinates)
                     }
                     requireContext().checkAppUpdate(
                         onAvailable = {
@@ -235,14 +235,24 @@ class RepeatDialog: Fragment() {
                 AdType.NATIVE.type -> {
                     parentFragmentManager.beginTransaction().
                             add(R.id.layoutToAd, NativeAdFragment.newInstance(
-                                onClosed = {}
+                                onClosed = { coins ->
+                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
+                                }
                             )).commit()
                 }
                 AdType.INTERSTITIAL.type -> {
-                    requireActivity().showInterstitialIfLoaded()
+                    requireActivity().showInterstitialIfLoaded(
+                        onClosed = { coins ->
+                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
+                        }
+                    )
                 }
                 AdType.REWARDED.type -> {
-                    requireActivity().loadAndShowRewardedAd()
+                    requireActivity().loadAndShowRewardedAd(
+                        onClosed = { coins ->
+                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
+                        }
+                    )
                 }
             }
 

@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
+import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.NativeAdFragment
 import com.myapp.lexicon.ads.ext.loadAndShowRewardedAd
 import com.myapp.lexicon.ads.ext.showInterstitialIfLoaded
@@ -41,6 +42,10 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     private lateinit var binding: OneOfFiveFragmNewBinding
     private lateinit var vm: OneOfFiveViewModel
     private lateinit var mActivity: MainActivity
+
+    private val adsVM: AdsViewModel by lazy {
+        ViewModelProvider(requireActivity())[AdsViewModel::class]
+    }
 
     private val wordsAdapter: OneFiveTestAdapter by lazy {
         OneFiveTestAdapter().apply {
@@ -296,7 +301,8 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
 
                     parentFragmentManager.beginTransaction()
                         .add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
-                            onClosed = {
+                            onClosed = { coins ->
+                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
                                 onComplete.invoke()
                             }
                         )).commit()
@@ -304,7 +310,8 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                 AdType.INTERSTITIAL.type -> {
 
                     requireActivity().showInterstitialIfLoaded(
-                        onClosed = {
+                        onClosed = { coins ->
+                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
                             onComplete.invoke()
                         },
                         onNotLoaded = {
@@ -315,7 +322,8 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                 AdType.REWARDED.type -> {
 
                     requireActivity().loadAndShowRewardedAd(
-                        onClosed = {
+                        onClosed = { coins ->
+                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
                             onComplete.invoke()
                         },
                         onNotLoaded = {

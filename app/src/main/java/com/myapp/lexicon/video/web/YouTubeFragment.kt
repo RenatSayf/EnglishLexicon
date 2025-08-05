@@ -422,15 +422,16 @@ class YouTubeFragment : Fragment() {
             }
 
             revenueVM.state.observe(viewLifecycleOwner) { state ->
+                val coinSymbol = getString(R.string.emoji_coin)
                 when(state) {
                     is UserViewModel.State.ReceivedUserData -> {
                         val rewardText = "${getString(R.string.coins_bag)} " +
-                                "${getString(R.string.text_your_reward)} ${state.user.userReward.toInt()} ${getString(R.string.emoji_coin)}"
+                                "${getString(R.string.text_your_reward)} ${state.user.userReward.toInt()} $coinSymbol"
                         tvReward.text = rewardText
                     }
                     is UserViewModel.State.RevenueUpdated -> {
-                        val rewardText = "${getString(R.string.coins_bag)}  +${state.bonus.toInt()} ${getString(R.string.emoji_coin)}. " +
-                                "${getString(R.string.text_your_reward)} ${state.user.userReward.toInt()} ${getString(R.string.emoji_coin)}"
+                        val rewardText = "${getString(R.string.coins_bag)}  +${state.bonus.toInt()} $coinSymbol. " +
+                                "${getString(R.string.text_your_reward)} ${state.user.userReward.toInt()} $coinSymbol"
                         tvReward.text = rewardText
                         bottomBar.changeHeightAnimatedly(actionBarHeight)
                     }
