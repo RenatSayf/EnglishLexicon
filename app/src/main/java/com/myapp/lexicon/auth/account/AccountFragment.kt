@@ -39,7 +39,6 @@ import com.myapp.lexicon.models.Payout
 import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.UserState
 import com.myapp.lexicon.models.ViewState
-import com.myapp.lexicon.models.to2DigitsScale
 import com.myapp.lexicon.settings.clearEmailPasswordInPref
 import com.myapp.lexicon.settings.isFirstLogin
 import com.parse.ParseUser
