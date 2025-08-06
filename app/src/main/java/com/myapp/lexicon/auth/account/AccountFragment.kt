@@ -379,7 +379,7 @@ class AccountFragment : Fragment() {
             }
 
             with(includeYesterday) {
-                val yesterdayReward = user.yesterdayUserReward.to2DigitsScale()
+                val yesterdayReward = user.yesterdayUserReward.toInt()
                 if (yesterdayReward > 0.0) {
                     dailyRewardRoot.visibility = View.VISIBLE
                     tvTitle.text = getString(R.string.text_yesterday)
@@ -392,7 +392,7 @@ class AccountFragment : Fragment() {
             }
 
             with(includeToday) {
-                val todayReward = user.userDailyReward.to2DigitsScale()
+                val todayReward = user.userDailyReward.toInt()
                 if (todayReward > 0.0) {
                     dailyRewardRoot.visibility = View.VISIBLE
                     tvTitle.text = getString(R.string.text_today)
