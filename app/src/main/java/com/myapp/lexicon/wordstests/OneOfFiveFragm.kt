@@ -257,10 +257,13 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         }
     }
 
+    private var coins: Int = 0
+
     private fun onTestPassed()
     {
         showAd(
-            onComplete = {
+            onComplete = { coins ->
+                this.coins = coins
                 try {
                     mActivity.testPassed()
                     lifecycleScope.launch {
@@ -277,7 +280,8 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     private fun onTestFailed(errors: Int)
     {
         showAd(
-            onComplete = {
+            onComplete = { coins ->
+                this.coins = coins
                 try {
                     mActivity.testFailed(errors)
                     lifecycleScope.launch {
@@ -292,7 +296,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     }
 
     private fun showAd(
-        onComplete: () -> Unit = {}
+        onComplete: (coins: Int) -> Unit = {}
     ) {
         if (this.adsIsEnabled) {
 
@@ -302,8 +306,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                     parentFragmentManager.beginTransaction()
                         .add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
                             onClosed = { coins ->
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
-                                onComplete.invoke()
+                                onComplete.invoke(coins)
                             }
                         )).commit()
                 }
@@ -311,11 +314,10 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
 
                     requireActivity().showInterstitialIfLoaded(
                         onClosed = { coins ->
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
-                            onComplete.invoke()
+                            onComplete.invoke(coins)
                         },
                         onNotLoaded = {
-                            onComplete.invoke()
+                            onComplete.invoke(0)
                         }
                     )
                 }
@@ -323,19 +325,27 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
 
                     requireActivity().loadAndShowRewardedAd(
                         onClosed = { coins ->
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
-                            onComplete.invoke()
+                            onComplete.invoke(coins)
                         },
                         onNotLoaded = {
-                            onComplete.invoke()
+                            onComplete.invoke(0)
                         }
                     )
                 }
             }
         }
         else {
-            onComplete.invoke()
+            onComplete.invoke(0)
         }
+    }
+
+    override fun onDestroyView() {
+
+        if (this.coins > 0.009) {
+            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(this.coins.toDouble()))
+        }
+
+        super.onDestroyView()
     }
 
 

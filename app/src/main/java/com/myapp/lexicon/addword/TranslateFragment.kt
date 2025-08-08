@@ -200,6 +200,8 @@ class TranslateFragment : Fragment()
         }
     }
 
+    private var coins: Int = 0
+
     private fun selectAndShowAd() {
         when(mActivity)
         {
@@ -211,7 +213,7 @@ class TranslateFragment : Fragment()
                         parentFragmentManager.beginTransaction()
                             .add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
                                 onClosed = { coins ->
-                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
+                                    this.coins = coins
                                     parentFragmentManager.popBackStack()
                                 }
                             )).commit()
@@ -219,7 +221,7 @@ class TranslateFragment : Fragment()
                     AdType.INTERSTITIAL.type -> {
                         requireActivity().showInterstitialIfLoaded(
                             onClosed = { coins ->
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
+                                this.coins = coins
                                 lifecycleScope.launch {
                                     delay(300)
                                     parentFragmentManager.popBackStack()
@@ -233,7 +235,7 @@ class TranslateFragment : Fragment()
                     AdType.REWARDED.type -> {
                         requireActivity().loadAndShowRewardedAd(
                             onClosed = { coins ->
-                                adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
+                                this.coins = coins
                                 lifecycleScope.launch {
                                     delay(500)
                                     parentFragmentManager.popBackStack()
@@ -254,6 +256,7 @@ class TranslateFragment : Fragment()
                         parentFragmentManager.beginTransaction()
                             .add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
                                 onClosed = { coins ->
+                                    this.coins = coins
                                     requireActivity().finish()
                                 }
                             )).commit()
@@ -261,6 +264,7 @@ class TranslateFragment : Fragment()
                     AdType.INTERSTITIAL.type -> {
                         requireActivity().showInterstitialIfLoaded(
                             onClosed = { coins ->
+                                this.coins = coins
                                 lifecycleScope.launch {
                                     delay(300)
                                     requireActivity().finish()
@@ -274,6 +278,7 @@ class TranslateFragment : Fragment()
                     AdType.REWARDED.type -> {
                         requireActivity().loadAndShowRewardedAd(
                             onClosed = { coins ->
+                                this.coins = coins
                                 lifecycleScope.launch {
                                     delay(300)
                                     requireActivity().finish()
@@ -287,6 +292,13 @@ class TranslateFragment : Fragment()
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+
+        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
+
+        super.onDestroyView()
     }
 
 

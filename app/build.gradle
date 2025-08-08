@@ -163,7 +163,7 @@ dependencies {
     testImplementation "androidx.work:work-testing:$work_version"
 
     // Appodeal
-    implementation("com.appodeal.ads:sdk:3.8.1.0") {
+    implementation("com.appodeal.ads:sdk:3.7.0.0") {
         exclude group: "com.appodeal.ads.sdk.services", module: "adjust"
         exclude group: "com.appodeal.ads.sdk.services", module: "appsflyer"
         exclude group: "com.appodeal.ads.sdk.services", module: "facebook_analytics"

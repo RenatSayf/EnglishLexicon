@@ -1071,6 +1071,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (requestKey.equals(OneOfFiveFragm.TEST_START)) {
             mainViewPager.setUserInputEnabled(true);
         }
+
+        if (requestKey.equals(CommonConstantsKt.KEY_AD_DATA))
+        {
+            double bonus = result.getDouble(CommonConstantsKt.KEY_REVENUE_PER_AD, 0.0);
+            showUserRewardAnimatedly(bonus);
+        }
     }
 }
 

@@ -12,7 +12,6 @@ import com.appodeal.ads.RewardedVideoCallbacks
 import com.appodeal.ads.initializing.ApdInitializationCallback
 import com.appodeal.ads.initializing.ApdInitializationError
 import com.appodeal.ads.nativead.NativeAdView
-import com.appodeal.ads.revenue.AdRevenueCallbacks
 import com.appodeal.ads.revenue.RevenueInfo
 import com.appodeal.ads.revenue.RevenuePlatform
 import com.myapp.lexicon.BuildConfig
@@ -54,7 +53,7 @@ private fun createTestRevenueInfo(adType: Int, adTypeString: String): RevenueInf
     )
 }
 
-private fun FragmentActivity.setRevenueUpdateResult(revenueInfo: RevenueInfo) {
+fun FragmentActivity.setRevenueUpdateResult(revenueInfo: RevenueInfo) {
 
     val viewModel = ViewModelProvider(this@setRevenueUpdateResult)[RevenueViewModel::class]
     val adData = AdData(
@@ -94,12 +93,6 @@ fun FragmentActivity.initAppodealAd(
                 errors?.forEach { t ->
                     t.printStackTraceIfDebug()
                 }
-
-                Appodeal.setAdRevenueCallbacks(object : AdRevenueCallbacks {
-                    override fun onAdRevenueReceive(revenueInfo: RevenueInfo) {
-                        this@initAppodealAd.setRevenueUpdateResult(revenueInfo)
-                    }
-                })
                 onCompleted.invoke()
             }
         }
