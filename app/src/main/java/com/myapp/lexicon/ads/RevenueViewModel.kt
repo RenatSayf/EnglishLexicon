@@ -22,7 +22,6 @@ import com.parse.ParseObject
 import com.parse.ParseQuery
 import com.parse.ParseUser
 import com.parse.SaveCallback
-import java.util.Currency
 
 
 class RevenueViewModel(
@@ -32,7 +31,10 @@ class RevenueViewModel(
     private var _userRevenueLD = MutableLiveData<AppResult>(AppResult.Init)
     val userRevenueLD: LiveData<AppResult> = _userRevenueLD
 
-    override fun updateUserRevenueIntoCloud(adData: AdData): LiveData<User?> {
+    override fun updateUserRevenueIntoCloud(
+        adData: AdData,
+        onUpdated: (User) -> Unit
+    ): LiveData<User?> {
 
         val userLiveData = MutableLiveData<User>()
 
@@ -86,6 +88,7 @@ class RevenueViewModel(
                                             _userRevenueLD.value = AppResult.Success(revenue)
                                             val user = obj.mapToUser()
                                             userLiveData.value = user
+                                            onUpdated.invoke(user)
                                             _state.value = State.RevenueUpdated(adData.revenue, user)
                                         }
                                         e is ParseException -> {

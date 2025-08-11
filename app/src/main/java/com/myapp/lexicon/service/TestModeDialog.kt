@@ -230,12 +230,13 @@ class TestModeDialog : Fragment() {
             }
 
             adsVM.interstitialAdState.observe(viewLifecycleOwner) { state ->
-                if (state is AdsViewModel.AdState.Dismissed) {
+                if (state is AdsViewModel.AdState.DismissedX) {
                     adProgress.visibility = View.GONE
-                    val bonus = state.bonus
-                    if (bonus > 0.0) {
+                    val coins = state.coins
+                    if (coins > 0.0) {
                         val coordinates = Pair(btnOpenApp.right + 55, btnOpenApp.top + 15)
-                        layoutRoot.showUserRewardAnimatedly(bonus.toInt().toString(), coordinates)
+                        layoutRoot.showUserRewardAnimatedly(coins.toString(), coordinates)
+                        buildRewardText(state.user)
                     }
                     requireContext().checkAppUpdate(
                         onAvailable = {
@@ -251,22 +252,29 @@ class TestModeDialog : Fragment() {
                 AdType.NATIVE.type -> {
                     parentFragmentManager.beginTransaction().
                     add(R.id.layoutToAd, NativeAdFragment.newInstance(
-                        onClosed = { coins ->
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
+                        onClosed = { coins, user ->
+                            adsVM.setInterstitialAdState(AdsViewModel.AdState.DismissedX(
+                                coins = coins,
+                                user = user
+                            ))
                         }
                     )).commit()
                 }
                 AdType.INTERSTITIAL.type -> {
-                    requireActivity().showInterstitialIfLoaded(
-                        onClosed = { coins ->
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
-                        }
-                    )
+                    requireActivity().showInterstitialIfLoaded { coins, user ->
+                        adsVM.setInterstitialAdState(AdsViewModel.AdState.DismissedX(
+                            coins = coins,
+                            user = user
+                        ))
+                    }
                 }
                 AdType.REWARDED.type -> {
                     requireActivity().loadAndShowRewardedAd(
-                        onClosed = { coins ->
-                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
+                        onClosed = { coins, user ->
+                            adsVM.setInterstitialAdState(AdsViewModel.AdState.DismissedX(
+                                coins = coins,
+                                user = user
+                            ))
                         }
                     )
                 }

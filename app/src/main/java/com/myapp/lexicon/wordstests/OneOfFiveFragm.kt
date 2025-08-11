@@ -27,6 +27,7 @@ import com.myapp.lexicon.dialogs.ConfirmDialog
 import com.myapp.lexicon.helpers.RandomNumberGenerator
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.main.MainActivity
+import com.myapp.lexicon.models.User
 import com.myapp.lexicon.models.Word
 import com.myapp.lexicon.settings.adsIsEnabled
 import kotlinx.coroutines.delay
@@ -54,6 +55,8 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         }
     }
 
+    private var coins: Int = 0
+    private var user: User? = null
 
     companion object
     {
@@ -257,13 +260,12 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
         }
     }
 
-    private var coins: Int = 0
-
     private fun onTestPassed()
     {
         showAd(
-            onComplete = { coins ->
+            onComplete = { coins, user ->
                 this.coins = coins
+                this.user = user
                 try {
                     mActivity.testPassed()
                     lifecycleScope.launch {
@@ -280,8 +282,9 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     private fun onTestFailed(errors: Int)
     {
         showAd(
-            onComplete = { coins ->
+            onComplete = { coins, user ->
                 this.coins = coins
+                this.user = user
                 try {
                     mActivity.testFailed(errors)
                     lifecycleScope.launch {
@@ -296,7 +299,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
     }
 
     private fun showAd(
-        onComplete: (coins: Int) -> Unit = {}
+        onComplete: (coins: Int, user: User?) -> Unit
     ) {
         if (this.adsIsEnabled) {
 
@@ -305,44 +308,44 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
 
                     parentFragmentManager.beginTransaction()
                         .add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
-                            onClosed = { coins ->
-                                onComplete.invoke(coins)
+                            onClosed = { coins, user ->
+                                onComplete.invoke(coins, user)
                             }
                         )).commit()
                 }
                 AdType.INTERSTITIAL.type -> {
 
                     requireActivity().showInterstitialIfLoaded(
-                        onClosed = { coins ->
-                            onComplete.invoke(coins)
-                        },
                         onNotLoaded = {
-                            onComplete.invoke(0)
+                            onComplete.invoke(0, null)
                         }
-                    )
+                    ) { coins, user ->
+                        onComplete.invoke(coins, user)
+                    }
                 }
                 AdType.REWARDED.type -> {
 
                     requireActivity().loadAndShowRewardedAd(
-                        onClosed = { coins ->
-                            onComplete.invoke(coins)
+                        onClosed = { coins, user ->
+                            onComplete.invoke(coins, user)
                         },
                         onNotLoaded = {
-                            onComplete.invoke(0)
+                            onComplete.invoke(0, null)
                         }
                     )
                 }
             }
         }
         else {
-            onComplete.invoke(0)
+            onComplete.invoke(0, null)
         }
     }
 
     override fun onDestroyView() {
 
-        if (this.coins > 0.009) {
-            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(this.coins.toDouble()))
+        this.user?.let { user ->
+            adsVM.setInterstitialAdState(
+                AdsViewModel.AdState.DismissedX(coins = this.coins, user))
         }
 
         super.onDestroyView()

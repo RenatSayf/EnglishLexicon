@@ -196,7 +196,10 @@ open class UserViewModel(private val app: Application) : AndroidViewModel(app) {
         return result
     }
 
-    open fun updateUserRevenueIntoCloud(adData: AdData): LiveData<User?> {
+    open fun updateUserRevenueIntoCloud(
+        adData: AdData,
+        onUpdated: (user: User) -> Unit = {}
+    ): LiveData<User?> {
         val userLiveData = MutableLiveData<User>()
         _loadingState.value = LoadingState.Start
         val currentUser = ParseUser.getCurrentUser()

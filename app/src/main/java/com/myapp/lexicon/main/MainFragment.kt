@@ -7,16 +7,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.appodeal.ads.Appodeal
-import com.appodeal.ads.revenue.AdRevenueCallbacks
-import com.appodeal.ads.revenue.RevenueInfo
 import com.google.firebase.messaging.FirebaseMessaging
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.aboutapp.checkAppUpdate
 import com.myapp.lexicon.aboutapp.showUpdateDialog
 import com.myapp.lexicon.aboutapp.showUpdateSnackBar
-import com.myapp.lexicon.ads.ext.setRevenueUpdateResult
 import com.myapp.lexicon.ads.models.AD_MAIN
 import com.myapp.lexicon.ads.models.AD_SERVICE
 import com.myapp.lexicon.ads.models.AD_TEST
@@ -72,11 +68,11 @@ class MainFragment : Fragment() {
         AD_VIDEO
         AD_SERVICE
 
-        Appodeal.setAdRevenueCallbacks(object : AdRevenueCallbacks {
-            override fun onAdRevenueReceive(revenueInfo: RevenueInfo) {
-                requireActivity().setRevenueUpdateResult(revenueInfo)
-            }
-        })
+//        Appodeal.setAdRevenueCallbacks(object : AdRevenueCallbacks {
+//            override fun onAdRevenueReceive(revenueInfo: RevenueInfo) {
+//                requireActivity().setRevenueUpdateResult(revenueInfo)
+//            }
+//        })
 
         val launcher = this.registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
 

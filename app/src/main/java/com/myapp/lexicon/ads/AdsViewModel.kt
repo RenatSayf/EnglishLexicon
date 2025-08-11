@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.models.User
 import kotlinx.serialization.json.Json
 
 
@@ -18,6 +19,7 @@ class AdsViewModel(
     sealed class AdState {
         data object Init: AdState()
         data class Dismissed(val bonus: Double): AdState()
+        data class DismissedX(val coins: Int, val user: User): AdState()
     }
 
     private var _interstitialAdState = MutableLiveData<AdState>(AdState.Init)

@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import com.myapp.lexicon.R
+import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.NativeAdFragment
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.ext.loadAndShowRewardedAd
@@ -70,9 +71,15 @@ class YouTubeFragment : Fragment() {
     private val youTubeVM: YouTubeViewModel by lazy {
         ViewModelProvider(this)[YouTubeViewModel::class.java]
     }
+
     private val revenueVM: RevenueViewModel by lazy {
         ViewModelProvider(requireActivity())[RevenueViewModel::class.java]
     }
+
+    private val adsVM: AdsViewModel by lazy {
+        ViewModelProvider(requireActivity())[AdsViewModel::class]
+    }
+
     private val actionBarHeight: Int by lazy {
         with(TypedValue().also {requireContext().theme.resolveAttribute(android.R.attr.actionBarSize, it, true)}) {
             TypedValue.complexToDimensionPixelSize(this.data, resources.displayMetrics)
@@ -264,21 +271,25 @@ class YouTubeFragment : Fragment() {
                                                             parentFragmentManager.beginTransaction()
                                                                 .add(R.id.frame_to_page_fragm,
                                                                      NativeAdFragment.newInstance(
-                                                                         onClosed = {
+                                                                         onClosed = { coins, user ->
+                                                                             adsVM.setInterstitialAdState(
+                                                                                 AdsViewModel.AdState.DismissedX(coins, user))
                                                                              youTubeVM.startAdTimer()
                                                                          }
                                                                      )).commit()
                                                         }
                                                         AdType.INTERSTITIAL.type -> {
-                                                            requireActivity().showInterstitialIfLoaded(
-                                                                onClosed = {
-                                                                    youTubeVM.startAdTimer()
-                                                                }
-                                                            )
+                                                            requireActivity().showInterstitialIfLoaded { coins, user ->
+                                                                adsVM.setInterstitialAdState(
+                                                                    AdsViewModel.AdState.DismissedX(coins, user))
+                                                                youTubeVM.startAdTimer()
+                                                            }
                                                         }
                                                         AdType.REWARDED.type -> {
                                                             requireActivity().loadAndShowRewardedAd(
-                                                                onClosed = {
+                                                                onClosed = { coins, user ->
+                                                                    adsVM.setInterstitialAdState(
+                                                                        AdsViewModel.AdState.DismissedX(coins, user))
                                                                     youTubeVM.startAdTimer()
                                                                 }
                                                             )
@@ -313,10 +324,10 @@ class YouTubeFragment : Fragment() {
             }
 
             setFragmentResultListener(KEY_AD_DISMISSED, listener = {requestKey, bundle ->
-                pbLoadPage.visibility = View.GONE
-                youTubeVM.startAdTimer()
-                val url = youTubeVM.playPauseClickScript()
-                webView.loadUrl(url)
+//                pbLoadPage.visibility = View.GONE
+//                youTubeVM.startAdTimer()
+//                val url = youTubeVM.playPauseClickScript()
+//                webView.loadUrl(url)
             })
 
             if (savedInstanceState == null) {
@@ -399,14 +410,14 @@ class YouTubeFragment : Fragment() {
 
         with(binding!!) {
 
-            setFragmentResultListener(KEY_AD_DATA, listener = { requestKey: String, bundle: Bundle ->
-                val reward = bundle.getDouble(User.KEY_USER_REWARD, 0.0)
-                val revenuePerAd = bundle.getDouble(KEY_REVENUE_PER_AD, 0.0)
-                val user = User(id = "XXX").apply {
-                    userReward = reward
-                }
-                revenueVM.setState(UserViewModel.State.RevenueUpdated(revenuePerAd, user))
-            })
+//            setFragmentResultListener(KEY_AD_DATA, listener = { requestKey: String, bundle: Bundle ->
+//                val reward = bundle.getDouble(User.KEY_USER_REWARD, 0.0)
+//                val revenuePerAd = bundle.getDouble(KEY_REVENUE_PER_AD, 0.0)
+//                val user = User(id = "XXX").apply {
+//                    userReward = reward
+//                }
+//                revenueVM.setState(UserViewModel.State.RevenueUpdated(revenuePerAd, user))
+//            })
 
             setFragmentResultListener(BookmarksDialog.KEY_BOOKMARK_RESULT, listener = {requestKey: String, bundle: Bundle ->
                 val bookmark = bundle.getString(BookmarksDialog.KEY_SELECTED_BOOKMARK)?.fromString()
@@ -430,7 +441,26 @@ class YouTubeFragment : Fragment() {
                         tvReward.text = rewardText
                     }
                     is UserViewModel.State.RevenueUpdated -> {
-                        val rewardText = "${getString(R.string.coins_bag)}  +${state.bonus.toInt()} $coinSymbol. " +
+//                        val rewardText = "${getString(R.string.coins_bag)}  +${state.bonus.toInt()} $coinSymbol. " +
+//                                "${getString(R.string.text_your_reward)} ${state.user.userReward.toInt()} $coinSymbol"
+//                        tvReward.text = rewardText
+//                        bottomBar.changeHeightAnimatedly(actionBarHeight)
+                    }
+                    else -> {}
+                }
+            }
+
+            adsVM.interstitialAdState.observe(viewLifecycleOwner) { state ->
+                when(state) {
+                    is AdsViewModel.AdState.DismissedX -> {
+
+                        pbLoadPage.visibility = View.GONE
+                        youTubeVM.startAdTimer()
+                        val url = youTubeVM.playPauseClickScript()
+                        webView.loadUrl(url)
+
+                        val coinSymbol = getString(R.string.emoji_coin)
+                        val rewardText = "${getString(R.string.coins_bag)}  +${state.coins} $coinSymbol. " +
                                 "${getString(R.string.text_your_reward)} ${state.user.userReward.toInt()} $coinSymbol"
                         tvReward.text = rewardText
                         bottomBar.changeHeightAnimatedly(actionBarHeight)

@@ -86,12 +86,11 @@ class AdFragment : Fragment() {
                 requireActivity().showInterstitialIfLoaded(
                     onNotLoaded = {
                         removeThisFragmentWithDelay()
-                    },
-                    onClosed = {
-                        onClosed.invoke()
-                        removeThisFragmentWithDelay()
                     }
-                )
+                ) { coins, user ->
+                    onClosed.invoke()
+                    removeThisFragmentWithDelay()
+                }
             }
             AdType.REWARDED.type -> {
 
@@ -99,7 +98,7 @@ class AdFragment : Fragment() {
                     onNotLoaded = {
                         removeThisFragmentWithDelay()
                     },
-                    onClosed = {
+                    onClosed = { coins, user ->
                         onClosed.invoke()
                         removeThisFragmentWithDelay()
                     }

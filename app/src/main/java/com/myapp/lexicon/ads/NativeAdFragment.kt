@@ -7,10 +7,16 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.myapp.lexicon.BuildConfig
+import com.myapp.lexicon.ads.ext.createTestRevenueInfo
+import com.myapp.lexicon.ads.ext.revenueUpdateListener
 import com.myapp.lexicon.ads.ext.showNativeAdsIfLoaded
+import com.myapp.lexicon.ads.ext.updateRevenueOnCloud
 import com.myapp.lexicon.ads.models.AdData
+import com.myapp.lexicon.common.AdsSource
 import com.myapp.lexicon.databinding.FragmentAdBinding
 import com.myapp.lexicon.main.MainActivity
+import com.myapp.lexicon.models.User
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -19,12 +25,14 @@ class NativeAdFragment : Fragment() {
         var isShown = false
         var onShown: () -> Unit = {}
         var onReward: (AdData) -> Unit = {}
-        var onClosed: (coins: Int) -> Unit = {}
+        var onClosed: (coins: Int, user: User) -> Unit = { coins, user ->
+
+        }
 
         fun newInstance(
             onShown: () -> Unit = {},
             onReward: (AdData) -> Unit = {},
-            onClosed: (coins: Int) -> Unit = {}
+            onClosed: (coins: Int, user: User) -> Unit
         ): NativeAdFragment {
             this.onClosed = onClosed
             this.onReward = onReward
@@ -40,6 +48,7 @@ class NativeAdFragment : Fragment() {
     }
 
     private var coins: Int = 0
+    private var user: User? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -58,7 +67,12 @@ class NativeAdFragment : Fragment() {
 
             coins = 0
             adsVM.adReward.observe(viewLifecycleOwner) { value ->
-                coins += value
+
+            }
+
+            requireActivity().revenueUpdateListener { coins, user ->
+                this@NativeAdFragment.coins += coins
+                this@NativeAdFragment.user = user
             }
 
             var failureLoadCount = 0
@@ -86,6 +100,13 @@ class NativeAdFragment : Fragment() {
                                 parentFragmentManager.beginTransaction().remove(this@NativeAdFragment).commit()
                             }
                         }
+                        if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
+                            val testRevenueInfo = createTestRevenueInfo(2, "Native")
+                            requireActivity().updateRevenueOnCloud(testRevenueInfo) { coins, user ->
+                                this@NativeAdFragment.coins += coins
+                                this@NativeAdFragment.user = user
+                            }
+                        }
                     }
                 }
             )
@@ -96,7 +117,11 @@ class NativeAdFragment : Fragment() {
     override fun onDestroyView() {
 
         isShown = false
-        onClosed.invoke(coins)
+        user?.let { user ->
+            if (coins > 0) {
+                onClosed.invoke(coins, user)
+            }
+        }
 
         super.onDestroyView()
     }

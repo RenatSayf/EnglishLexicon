@@ -1,6 +1,5 @@
 package com.myapp.lexicon.ads.ext
 
-import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import com.appodeal.ads.Appodeal
@@ -12,15 +11,13 @@ import com.appodeal.ads.RewardedVideoCallbacks
 import com.appodeal.ads.initializing.ApdInitializationCallback
 import com.appodeal.ads.initializing.ApdInitializationError
 import com.appodeal.ads.nativead.NativeAdView
+import com.appodeal.ads.revenue.AdRevenueCallbacks
 import com.appodeal.ads.revenue.RevenueInfo
 import com.appodeal.ads.revenue.RevenuePlatform
 import com.myapp.lexicon.BuildConfig
-import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.RevenueViewModel
 import com.myapp.lexicon.ads.models.AdData
 import com.myapp.lexicon.common.AdsSource
-import com.myapp.lexicon.common.KEY_AD_DATA
-import com.myapp.lexicon.common.KEY_REVENUE_PER_AD
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.models.User
 import kotlin.random.Random
@@ -32,11 +29,7 @@ private val DEBUG_REWARD_USD: Double
         return Random(System.currentTimeMillis()).nextInt(1, 12) * 0.001
     }
 
-private var coins: Int = 0
-
-private var adsVM: AdsViewModel? = null
-
-private fun createTestRevenueInfo(adType: Int, adTypeString: String): RevenueInfo {
+fun createTestRevenueInfo(adType: Int, adTypeString: String): RevenueInfo {
     return RevenueInfo(
         networkName = "XXX",
         demandSource = "AAA",
@@ -53,9 +46,27 @@ private fun createTestRevenueInfo(adType: Int, adTypeString: String): RevenueInf
     )
 }
 
-fun FragmentActivity.setRevenueUpdateResult(revenueInfo: RevenueInfo) {
+fun FragmentActivity.revenueUpdateListener(onUpdate: (coins: Int, user: User) -> Unit) {
 
-    val viewModel = ViewModelProvider(this@setRevenueUpdateResult)[RevenueViewModel::class]
+    Appodeal.setAdRevenueCallbacks(object : AdRevenueCallbacks {
+        override fun onAdRevenueReceive(revenueInfo: RevenueInfo) {
+
+            this@revenueUpdateListener.updateRevenueOnCloud(
+                revenueInfo,
+                onUpdate = { coins, user ->
+                    onUpdate.invoke(coins, user)
+                }
+            )
+        }
+
+    })
+}
+
+fun FragmentActivity.updateRevenueOnCloud(
+    revenueInfo: RevenueInfo,
+    onUpdate: (coins: Int, user: User) -> Unit
+) {
+    val viewModel = ViewModelProvider(this@updateRevenueOnCloud)[RevenueViewModel::class]
     val adData = AdData(
         adType = revenueInfo.adTypeString,
         adUnitId = revenueInfo.demandSource,
@@ -64,20 +75,10 @@ fun FragmentActivity.setRevenueUpdateResult(revenueInfo: RevenueInfo) {
         revenue = (revenueInfo.revenue * MULTIPLIER).toInt().toDouble(),
         revenueUSD = revenueInfo.revenue
     )
-    coins = 0
-    coins = adData.revenue.toInt()
-    adsVM?.setAdReward(coins)
-    viewModel.updateUserRevenueIntoCloud(adData).observe(this) { user ->
-        if (user != null) {
-            this.supportFragmentManager.setFragmentResult(
-                KEY_AD_DATA,
-                bundleOf(
-                    User.KEY_USER_REWARD to user.userReward,
-                    KEY_REVENUE_PER_AD to adData.revenue
-                )
-            )
-        }
-    }
+    val coins = adData.revenue.toInt()
+    viewModel.updateUserRevenueIntoCloud(adData, onUpdated = { user ->
+        onUpdate.invoke(coins, user)
+    })
 }
 
 fun FragmentActivity.initAppodealAd(
@@ -101,11 +102,17 @@ fun FragmentActivity.initAppodealAd(
 
 fun FragmentActivity.loadAndShowRewardedAd(
     onNotLoaded: () -> Unit = {},
-    onClosed: (coins: Int) -> Unit = {}
+    onClosed: (coins: Int, user: User) -> Unit
 ) {
     if (Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
 
-        adsVM = ViewModelProvider(this@loadAndShowRewardedAd)[AdsViewModel::class]
+        var thisCoins = 0
+        var thisUser: User? = null
+
+        this.revenueUpdateListener { coins, user ->
+            thisCoins = coins
+            thisUser = user
+        }
 
         Appodeal.setRewardedVideoCallbacks(object : RewardedVideoCallbacks {
 
@@ -114,7 +121,11 @@ fun FragmentActivity.loadAndShowRewardedAd(
             }
 
             override fun onRewardedVideoClosed(finished: Boolean) {
-                onClosed.invoke(coins)
+                thisUser?.let { user ->
+                    if (thisCoins > 0) {
+                        onClosed.invoke(thisCoins, user)
+                    }
+                }
             }
 
             override fun onRewardedVideoExpired() {
@@ -140,7 +151,10 @@ fun FragmentActivity.loadAndShowRewardedAd(
             override fun onRewardedVideoShown() {
                 if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                     val testRevenueInfo = createTestRevenueInfo(4, "Rewarded")
-                    this@loadAndShowRewardedAd.setRevenueUpdateResult(testRevenueInfo)
+                    this@loadAndShowRewardedAd.updateRevenueOnCloud(testRevenueInfo) { coins, user ->
+                        thisCoins = coins
+                        thisUser = user
+                    }
                 }
             }
         })
@@ -164,8 +178,6 @@ fun FragmentActivity.showNativeAdsIfLoaded(
     val adsCount = Appodeal.getAvailableNativeAdsCount()
     if (adsCount > 0) {
 
-        adsVM = ViewModelProvider(this@showNativeAdsIfLoaded)[AdsViewModel::class]
-
         Appodeal.setNativeCallbacks(object : NativeCallbacks {
             override fun onNativeClicked(nativeAd: NativeAd?) {
                 return
@@ -188,10 +200,6 @@ fun FragmentActivity.showNativeAdsIfLoaded(
             }
 
             override fun onNativeShown(nativeAd: NativeAd?) {
-                if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
-                    val testRevenueInfo = createTestRevenueInfo(2, "Native")
-                    this@showNativeAdsIfLoaded.setRevenueUpdateResult(testRevenueInfo)
-                }
                 onShow.invoke()
             }
         })
@@ -208,13 +216,25 @@ fun FragmentActivity.showNativeAdsIfLoaded(
 
 fun FragmentActivity.showInterstitialIfLoaded(
     onShow: () -> Unit = {},
-    onClosed: (coins: Int) -> Unit = {},
-    onNotLoaded: () -> Unit = {}
+    onNotLoaded: () -> Unit = {},
+    onClosed: (coins: Int, user: User) -> Unit
 ) {
     val loaded = Appodeal.isLoaded(Appodeal.INTERSTITIAL)
     if (loaded) {
 
-        adsVM = ViewModelProvider(this@showInterstitialIfLoaded)[AdsViewModel::class]
+        var thisCoins = 0
+        var thisUser: User? = null
+
+        this.revenueUpdateListener { coins, user ->
+            thisCoins = coins
+            thisUser = user
+        }
+
+        Appodeal.setAdRevenueCallbacks(object : AdRevenueCallbacks {
+            override fun onAdRevenueReceive(revenueInfo: RevenueInfo) {
+                revenueInfo
+            }
+        })
 
         Appodeal.setInterstitialCallbacks(object : InterstitialCallbacks {
             override fun onInterstitialClicked() {
@@ -222,7 +242,11 @@ fun FragmentActivity.showInterstitialIfLoaded(
             }
 
             override fun onInterstitialClosed() {
-                onClosed.invoke(coins)
+                thisUser?.let { user ->
+                    if (thisCoins > 0) {
+                        onClosed.invoke(thisCoins, user)
+                    }
+                }
             }
 
             override fun onInterstitialExpired() {
@@ -244,7 +268,10 @@ fun FragmentActivity.showInterstitialIfLoaded(
             override fun onInterstitialShown() {
                 if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                     val testRevenueInfo = createTestRevenueInfo(3, "Interstitial")
-                    this@showInterstitialIfLoaded.setRevenueUpdateResult(testRevenueInfo)
+                    this@showInterstitialIfLoaded.updateRevenueOnCloud(testRevenueInfo) { coins, user ->
+                        thisCoins = coins
+                        thisUser = user
+                    }
                 }
                 onShow.invoke()
             }
@@ -284,7 +311,9 @@ fun FragmentActivity.showBannerViewIfLoaded(bannerId: Int) {
         override fun onBannerShown() {
             if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
                 val testRevenueInfo = createTestRevenueInfo(1, "Banner")
-                this@showBannerViewIfLoaded.setRevenueUpdateResult(testRevenueInfo)
+                this@showBannerViewIfLoaded.updateRevenueOnCloud(testRevenueInfo) { coins, user ->
+
+                }
             }
         }
 

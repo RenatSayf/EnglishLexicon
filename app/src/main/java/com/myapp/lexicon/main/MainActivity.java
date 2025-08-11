@@ -221,7 +221,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         MainActivity.this,
                         (adData, bonus) -> {
                             if (adData != null) {
-                                revenueVM.updateUserRevenueIntoCloud(adData);
+                                revenueVM.updateUserRevenueIntoCloud(
+                                        adData,
+                                        (user1 -> null)
+                                );
                             }
                             if (bonus > 0.009)
                             {
@@ -1017,6 +1020,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             this, "Bonus is less than 0.01"
                     );
                 }
+            }
+            if (adState instanceof AdsViewModel.AdState.DismissedX) {
+                int coins = ((AdsViewModel.AdState.DismissedX) adState).getCoins();
+                User user = ((AdsViewModel.AdState.DismissedX) adState).getUser();
+                Revenue revenue = new Revenue(user.getUserReward(), 0.0, "", "");
+                buildRewardText(revenue);
+                showUserRewardAnimatedly((double) coins);
             }
         });
     }

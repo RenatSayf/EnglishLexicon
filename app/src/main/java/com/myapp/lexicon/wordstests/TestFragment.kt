@@ -33,7 +33,6 @@ import com.myapp.lexicon.ads.ext.showInterstitialIfLoaded
 import com.myapp.lexicon.ads.models.AD_TEST
 import com.myapp.lexicon.ads.models.AdType
 import com.myapp.lexicon.common.KEY_AD_DATA
-import com.myapp.lexicon.common.KEY_REVENUE_PER_AD
 import com.myapp.lexicon.databinding.TestFragmentBinding
 import com.myapp.lexicon.dialogs.DictListDialog
 import com.myapp.lexicon.helpers.LockOrientation
@@ -281,10 +280,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
             testVM.state.observe(viewLifecycleOwner) { state ->
                 when (state) {
-                    TestViewModel.State.Init -> {
-
-                    }
-
+                    TestViewModel.State.Init -> {}
                     TestViewModel.State.NotShowAd -> {}
                     TestViewModel.State.ShowAd -> {
 
@@ -292,23 +288,30 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                             AdType.NATIVE.type -> {
                                 parentFragmentManager.beginTransaction()
                                     .add(R.id.adLayout, NativeAdFragment.newInstance(
-                                        onClosed = { coins ->
-                                            adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
+                                        onClosed = { coins, user ->
+                                            adsVM.setInterstitialAdState(AdsViewModel.AdState.DismissedX(
+                                                coins = coins,
+                                                user = user
+                                            ))
                                         }
                                     )).commit()
 
                             }
                             AdType.INTERSTITIAL.type -> {
-                                requireActivity().showInterstitialIfLoaded(
-                                    onClosed = { coins ->
-                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
-                                    }
-                                )
+                                requireActivity().showInterstitialIfLoaded { coins, user ->
+                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.DismissedX(
+                                        coins = coins,
+                                        user = user
+                                    ))
+                                }
                             }
                             AdType.REWARDED.type -> {
                                 requireActivity().loadAndShowRewardedAd(
-                                    onClosed = { coins ->
-                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.Dismissed(coins.toDouble()))
+                                    onClosed = { coins, user ->
+                                        adsVM.setInterstitialAdState(AdsViewModel.AdState.DismissedX(
+                                            coins = coins,
+                                            user = user
+                                        ))
                                     }
                                 )
                             }
@@ -546,6 +549,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
     override fun onDestroyView() {
 
         lockOrientation.unLock()
+
         super.onDestroyView()
     }
 
