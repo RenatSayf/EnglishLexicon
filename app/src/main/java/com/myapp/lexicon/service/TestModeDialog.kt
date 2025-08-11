@@ -259,7 +259,9 @@ class TestModeDialog : Fragment() {
                                 user = user
                             ))
                         },
-                        onRevenueEmpty = {}
+                        onRevenueEmpty = {
+                            adProgress.visibility = View.GONE
+                        }
                     )).commit()
                 }
                 AdType.INTERSTITIAL.type -> {
@@ -272,7 +274,9 @@ class TestModeDialog : Fragment() {
                                 )
                             )
                         },
-                        onRevenueEmpty = {}
+                        onRevenueEmpty = {
+                            adProgress.visibility = View.GONE
+                        }
                     )
                 }
                 AdType.REWARDED.type -> {
@@ -283,7 +287,9 @@ class TestModeDialog : Fragment() {
                                 user = user
                             ))
                         },
-                        onRevenueEmpty = {}
+                        onRevenueEmpty = {
+                            adProgress.visibility = View.GONE
+                        }
                     )
                 }
             }
