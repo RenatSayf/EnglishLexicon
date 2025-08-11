@@ -23,6 +23,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import com.appodeal.ads.Appodeal
 import com.jakewharton.rxbinding2.widget.RxTextView
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
@@ -293,17 +294,23 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                                 coins = coins,
                                                 user = user
                                             ))
-                                        }
+                                        },
+                                        onRevenueEmpty = {}
                                     )).commit()
 
                             }
                             AdType.INTERSTITIAL.type -> {
-                                requireActivity().showInterstitialIfLoaded { coins, user ->
-                                    adsVM.setInterstitialAdState(AdsViewModel.AdState.DismissedX(
-                                        coins = coins,
-                                        user = user
-                                    ))
-                                }
+                                requireActivity().showInterstitialIfLoaded(
+                                    onClosed = { coins, user ->
+                                        adsVM.setInterstitialAdState(
+                                            AdsViewModel.AdState.DismissedX(
+                                                coins = coins,
+                                                user = user
+                                            )
+                                        )
+                                    },
+                                    onRevenueEmpty = {}
+                                )
                             }
                             AdType.REWARDED.type -> {
                                 requireActivity().loadAndShowRewardedAd(
@@ -312,7 +319,8 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
                                             coins = coins,
                                             user = user
                                         ))
-                                    }
+                                    },
+                                    onRevenueEmpty = {}
                                 )
                             }
                         }
@@ -548,6 +556,7 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
 
     override fun onDestroyView() {
 
+        Appodeal.setAdRevenueCallbacks(null)
         lockOrientation.unLock()
 
         super.onDestroyView()
@@ -639,5 +648,6 @@ class TestFragment : Fragment(R.layout.test_fragment), DictListDialog.ISelectIte
         testVM.testState.reset()
         this.saveTestStateToPref(null)
     }
+
 
 }

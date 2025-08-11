@@ -27,6 +27,7 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
+import com.appodeal.ads.Appodeal
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.NativeAdFragment
@@ -272,15 +273,25 @@ class YouTubeFragment : Fragment() {
                                                                              adsVM.setInterstitialAdState(
                                                                                  AdsViewModel.AdState.DismissedX(coins, user))
                                                                              youTubeVM.startAdTimer()
+                                                                         },
+                                                                         onRevenueEmpty = {
+                                                                             youTubeVM.startAdTimer()
                                                                          }
                                                                      )).commit()
                                                         }
                                                         AdType.INTERSTITIAL.type -> {
-                                                            requireActivity().showInterstitialIfLoaded { coins, user ->
-                                                                adsVM.setInterstitialAdState(
-                                                                    AdsViewModel.AdState.DismissedX(coins, user))
-                                                                youTubeVM.startAdTimer()
-                                                            }
+                                                            requireActivity().showInterstitialIfLoaded(
+                                                                onClosed = { coins, user ->
+                                                                    adsVM.setInterstitialAdState(
+                                                                        AdsViewModel.AdState.DismissedX(
+                                                                            coins,
+                                                                            user
+                                                                        )
+                                                                    )
+                                                                    youTubeVM.startAdTimer()
+                                                                },
+                                                                onRevenueEmpty = {}
+                                                            )
                                                         }
                                                         AdType.REWARDED.type -> {
                                                             requireActivity().loadAndShowRewardedAd(
@@ -288,7 +299,8 @@ class YouTubeFragment : Fragment() {
                                                                     adsVM.setInterstitialAdState(
                                                                         AdsViewModel.AdState.DismissedX(coins, user))
                                                                     youTubeVM.startAdTimer()
-                                                                }
+                                                                },
+                                                                onRevenueEmpty = {}
                                                             )
                                                         }
                                                     }
@@ -490,6 +502,13 @@ class YouTubeFragment : Fragment() {
                 parentFragmentManager.popBackStack()
             }
         }
+    }
+
+    override fun onDestroyView() {
+
+        Appodeal.setAdRevenueCallbacks(null)
+
+        super.onDestroyView()
     }
 
     override fun onDestroy() {

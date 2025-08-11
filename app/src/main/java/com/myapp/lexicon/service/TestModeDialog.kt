@@ -16,6 +16,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import com.appodeal.ads.Appodeal
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.R
 import com.myapp.lexicon.aboutapp.checkAppUpdate
@@ -257,16 +258,22 @@ class TestModeDialog : Fragment() {
                                 coins = coins,
                                 user = user
                             ))
-                        }
+                        },
+                        onRevenueEmpty = {}
                     )).commit()
                 }
                 AdType.INTERSTITIAL.type -> {
-                    requireActivity().showInterstitialIfLoaded { coins, user ->
-                        adsVM.setInterstitialAdState(AdsViewModel.AdState.DismissedX(
-                            coins = coins,
-                            user = user
-                        ))
-                    }
+                    requireActivity().showInterstitialIfLoaded(
+                        onClosed = { coins, user ->
+                            adsVM.setInterstitialAdState(
+                                AdsViewModel.AdState.DismissedX(
+                                    coins = coins,
+                                    user = user
+                                )
+                            )
+                        },
+                        onRevenueEmpty = {}
+                    )
                 }
                 AdType.REWARDED.type -> {
                     requireActivity().loadAndShowRewardedAd(
@@ -275,7 +282,8 @@ class TestModeDialog : Fragment() {
                                 coins = coins,
                                 user = user
                             ))
-                        }
+                        },
+                        onRevenueEmpty = {}
                     )
                 }
             }
@@ -431,6 +439,13 @@ class TestModeDialog : Fragment() {
             override fun onAnimationRepeat(animation: Animation) {}
         })
         button.startAnimation(animNotRight)
+    }
+
+    override fun onDestroyView() {
+
+        Appodeal.setAdRevenueCallbacks(null)
+
+        super.onDestroyView()
     }
 
 }

@@ -102,7 +102,8 @@ fun FragmentActivity.initAppodealAd(
 
 fun FragmentActivity.loadAndShowRewardedAd(
     onNotLoaded: () -> Unit = {},
-    onClosed: (coins: Int, user: User) -> Unit
+    onClosed: (coins: Int, user: User) -> Unit,
+    onRevenueEmpty: () -> Unit
 ) {
     if (Appodeal.isLoaded(Appodeal.REWARDED_VIDEO)) {
 
@@ -125,6 +126,8 @@ fun FragmentActivity.loadAndShowRewardedAd(
                     if (thisCoins > 0) {
                         onClosed.invoke(thisCoins, user)
                     }
+                }?: run {
+                    onRevenueEmpty.invoke()
                 }
             }
 
@@ -217,7 +220,8 @@ fun FragmentActivity.showNativeAdsIfLoaded(
 fun FragmentActivity.showInterstitialIfLoaded(
     onShow: () -> Unit = {},
     onNotLoaded: () -> Unit = {},
-    onClosed: (coins: Int, user: User) -> Unit
+    onClosed: (coins: Int, user: User) -> Unit,
+    onRevenueEmpty: () -> Unit
 ) {
     val loaded = Appodeal.isLoaded(Appodeal.INTERSTITIAL)
     if (loaded) {
@@ -230,12 +234,6 @@ fun FragmentActivity.showInterstitialIfLoaded(
             thisUser = user
         }
 
-        Appodeal.setAdRevenueCallbacks(object : AdRevenueCallbacks {
-            override fun onAdRevenueReceive(revenueInfo: RevenueInfo) {
-                revenueInfo
-            }
-        })
-
         Appodeal.setInterstitialCallbacks(object : InterstitialCallbacks {
             override fun onInterstitialClicked() {
                 return
@@ -246,6 +244,8 @@ fun FragmentActivity.showInterstitialIfLoaded(
                     if (thisCoins > 0) {
                         onClosed.invoke(thisCoins, user)
                     }
+                }?: run {
+                    onRevenueEmpty.invoke()
                 }
             }
 
@@ -309,12 +309,12 @@ fun FragmentActivity.showBannerViewIfLoaded(bannerId: Int) {
         }
 
         override fun onBannerShown() {
-            if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
-                val testRevenueInfo = createTestRevenueInfo(1, "Banner")
-                this@showBannerViewIfLoaded.updateRevenueOnCloud(testRevenueInfo) { coins, user ->
-
-                }
-            }
+//            if (BuildConfig.ADS_SOURCE == AdsSource.TEST_AD.name) {
+//                val testRevenueInfo = createTestRevenueInfo(1, "Banner")
+//                this@showBannerViewIfLoaded.updateRevenueOnCloud(testRevenueInfo) { coins, user ->
+//
+//                }
+//            }
         }
 
     })

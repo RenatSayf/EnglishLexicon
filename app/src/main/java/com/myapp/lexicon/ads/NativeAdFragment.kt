@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.appodeal.ads.Appodeal
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.ext.createTestRevenueInfo
 import com.myapp.lexicon.ads.ext.revenueUpdateListener
@@ -28,14 +29,18 @@ class NativeAdFragment : Fragment() {
 
         }
 
+        var onRevenueEmpty: () -> Unit = {}
+
         fun newInstance(
             onShown: () -> Unit = {},
             onReward: (AdData) -> Unit = {},
-            onClosed: (coins: Int, user: User) -> Unit
+            onClosed: (coins: Int, user: User) -> Unit,
+            onRevenueEmpty: () -> Unit
         ): NativeAdFragment {
             this.onClosed = onClosed
             this.onReward = onReward
             this.onShown = onShown
+            this.onRevenueEmpty = onRevenueEmpty
             return NativeAdFragment()
         }
     }
@@ -109,10 +114,13 @@ class NativeAdFragment : Fragment() {
     override fun onDestroyView() {
 
         isShown = false
+        Appodeal.setAdRevenueCallbacks(null)
         user?.let { user ->
             if (coins > 0) {
                 onClosed.invoke(coins, user)
             }
+        }?: run {
+            onRevenueEmpty.invoke()
         }
 
         super.onDestroyView()

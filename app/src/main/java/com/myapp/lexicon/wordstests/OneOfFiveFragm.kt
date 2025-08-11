@@ -14,6 +14,7 @@ import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.appodeal.ads.Appodeal
 import com.myapp.lexicon.R
 import com.myapp.lexicon.adapters.OneFiveTestAdapter
 import com.myapp.lexicon.ads.AdsViewModel
@@ -310,6 +311,9 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                         .add(R.id.frame_to_page_fragm, NativeAdFragment.newInstance(
                             onClosed = { coins, user ->
                                 onComplete.invoke(coins, user)
+                            },
+                            onRevenueEmpty = {
+                                onComplete.invoke(0, null)
                             }
                         )).commit()
                 }
@@ -318,10 +322,14 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                     requireActivity().showInterstitialIfLoaded(
                         onNotLoaded = {
                             onComplete.invoke(0, null)
+                        },
+                        onClosed = { coins, user ->
+                            onComplete.invoke(coins, user)
+                        },
+                        onRevenueEmpty = {
+                            onComplete.invoke(0, null)
                         }
-                    ) { coins, user ->
-                        onComplete.invoke(coins, user)
-                    }
+                    )
                 }
                 AdType.REWARDED.type -> {
 
@@ -330,6 +338,9 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
                             onComplete.invoke(coins, user)
                         },
                         onNotLoaded = {
+                            onComplete.invoke(0, null)
+                        },
+                        onRevenueEmpty = {
                             onComplete.invoke(0, null)
                         }
                     )
@@ -343,6 +354,7 @@ class OneOfFiveFragm : Fragment(), OneFiveTestAdapter.ITestAdapterListener
 
     override fun onDestroyView() {
 
+        Appodeal.setAdRevenueCallbacks(null)
         this.user?.let { user ->
             adsVM.setInterstitialAdState(
                 AdsViewModel.AdState.DismissedX(coins = this.coins, user))

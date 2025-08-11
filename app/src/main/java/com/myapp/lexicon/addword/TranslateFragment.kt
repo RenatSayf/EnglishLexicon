@@ -15,6 +15,7 @@ import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.appodeal.ads.Appodeal
 import com.myapp.lexicon.R
 import com.myapp.lexicon.ads.AdsViewModel
 import com.myapp.lexicon.ads.NativeAdFragment
@@ -218,6 +219,9 @@ class TranslateFragment : Fragment()
                                     this.coins = coins
                                     this.user = user
                                     parentFragmentManager.popBackStack()
+                                },
+                                onRevenueEmpty = {
+                                    parentFragmentManager.popBackStack()
                                 }
                             )).commit()
                     }
@@ -225,15 +229,22 @@ class TranslateFragment : Fragment()
                         requireActivity().showInterstitialIfLoaded(
                             onNotLoaded = {
                                 parentFragmentManager.popBackStack()
+                            },
+                            onClosed = { coins, user ->
+                                this.coins = coins
+                                this.user = user
+                                lifecycleScope.launch {
+                                    delay(300)
+                                    parentFragmentManager.popBackStack()
+                                }
+                            },
+                            onRevenueEmpty = {
+                                lifecycleScope.launch {
+                                    delay(300)
+                                    parentFragmentManager.popBackStack()
+                                }
                             }
-                        ) { coins, user ->
-                            this.coins = coins
-                            this.user = user
-                            lifecycleScope.launch {
-                                delay(300)
-                                parentFragmentManager.popBackStack()
-                            }
-                        }
+                        )
                     }
                     AdType.REWARDED.type -> {
                         requireActivity().loadAndShowRewardedAd(
@@ -247,6 +258,12 @@ class TranslateFragment : Fragment()
                             },
                             onNotLoaded = {
                                 parentFragmentManager.popBackStack()
+                            },
+                            onRevenueEmpty = {
+                                lifecycleScope.launch {
+                                    delay(500)
+                                    parentFragmentManager.popBackStack()
+                                }
                             }
                         )
                     }
@@ -263,6 +280,9 @@ class TranslateFragment : Fragment()
                                     this.coins = coins
                                     this.user = user
                                     requireActivity().finish()
+                                },
+                                onRevenueEmpty = {
+                                    requireActivity().finish()
                                 }
                             )).commit()
                     }
@@ -270,15 +290,22 @@ class TranslateFragment : Fragment()
                         requireActivity().showInterstitialIfLoaded(
                             onNotLoaded = {
                                 parentFragmentManager.popBackStack()
+                            },
+                            onClosed = { coins, user ->
+                                this.coins = coins
+                                this.user = user
+                                lifecycleScope.launch {
+                                    delay(300)
+                                    requireActivity().finish()
+                                }
+                            },
+                            onRevenueEmpty = {
+                                lifecycleScope.launch {
+                                    delay(300)
+                                    requireActivity().finish()
+                                }
                             }
-                        ) { coins, user ->
-                            this.coins = coins
-                            this.user = user
-                            lifecycleScope.launch {
-                                delay(300)
-                                requireActivity().finish()
-                            }
-                        }
+                        )
                     }
                     AdType.REWARDED.type -> {
                         requireActivity().loadAndShowRewardedAd(
@@ -291,7 +318,10 @@ class TranslateFragment : Fragment()
                                 }
                             },
                             onNotLoaded = {
-                                parentFragmentManager.popBackStack()
+                                requireActivity().finish()
+                            },
+                            onRevenueEmpty = {
+                                requireActivity().finish()
                             }
                         )
                     }
@@ -302,6 +332,7 @@ class TranslateFragment : Fragment()
 
     override fun onDestroyView() {
 
+        Appodeal.setAdRevenueCallbacks(null)
         this.user?.let { user ->
             adsVM.setInterstitialAdState(AdsViewModel.AdState.DismissedX(coins = coins, user = user))
         }
