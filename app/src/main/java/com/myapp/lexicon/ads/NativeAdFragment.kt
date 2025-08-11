@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.myapp.lexicon.BuildConfig
 import com.myapp.lexicon.ads.ext.createTestRevenueInfo
@@ -43,10 +42,6 @@ class NativeAdFragment : Fragment() {
 
     private var binding: FragmentAdBinding? = null
 
-    private val adsVM: AdsViewModel by lazy {
-        ViewModelProvider(requireActivity())[AdsViewModel::class]
-    }
-
     private var coins: Int = 0
     private var user: User? = null
 
@@ -66,9 +61,6 @@ class NativeAdFragment : Fragment() {
         with(binding!!) {
 
             coins = 0
-            adsVM.adReward.observe(viewLifecycleOwner) { value ->
-
-            }
 
             requireActivity().revenueUpdateListener { coins, user ->
                 this@NativeAdFragment.coins += coins

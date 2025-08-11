@@ -35,8 +35,6 @@ import com.myapp.lexicon.ads.ext.loadAndShowRewardedAd
 import com.myapp.lexicon.ads.ext.showInterstitialIfLoaded
 import com.myapp.lexicon.ads.models.AD_VIDEO
 import com.myapp.lexicon.ads.models.AdType
-import com.myapp.lexicon.common.KEY_AD_DATA
-import com.myapp.lexicon.common.KEY_REVENUE_PER_AD
 import com.myapp.lexicon.databinding.FragmentYouTubeBinding
 import com.myapp.lexicon.helpers.isNetworkAvailable
 import com.myapp.lexicon.helpers.orientationLock
@@ -44,7 +42,6 @@ import com.myapp.lexicon.helpers.orientationUnLock
 import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.myapp.lexicon.helpers.toDp
 import com.myapp.lexicon.main.viewmodels.UserViewModel
-import com.myapp.lexicon.models.User
 import com.myapp.lexicon.video.constants.PRETTY_PRINT_URL
 import com.myapp.lexicon.video.constants.VIDEO_URL
 import com.myapp.lexicon.video.extensions.changeHeightAnimatedly

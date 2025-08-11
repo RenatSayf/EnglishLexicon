@@ -29,13 +29,6 @@ class AdsViewModel(
         _interstitialAdState.value = state
     }
 
-    private var _adReward = MutableLiveData(0)
-    val adReward: LiveData<Int> = _adReward
-
-    fun setAdReward(value: Int) {
-        _adReward.value = value
-    }
-
 
 }
 
