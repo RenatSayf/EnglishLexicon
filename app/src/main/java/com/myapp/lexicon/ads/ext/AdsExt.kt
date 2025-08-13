@@ -1,5 +1,7 @@
 package com.myapp.lexicon.ads.ext
 
+import android.util.Log
+import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import com.appodeal.ads.Appodeal
@@ -57,6 +59,11 @@ fun FragmentActivity.revenueUpdateListener(onUpdate: (coins: Int, user: User) ->
                     onUpdate.invoke(coins, user)
                 }
             )
+
+            val message = "************* revenueInfo: ${revenueInfo.revenue} *******************"
+            Toast.makeText(this@revenueUpdateListener, message, Toast.LENGTH_LONG).show()
+
+            Log.d("XXXXX", message)
         }
 
     })
@@ -287,6 +294,11 @@ fun FragmentActivity.showInterstitialIfLoaded(
 fun FragmentActivity.showBannerViewIfLoaded(bannerId: Int) {
 
     Appodeal.setBannerViewId(bannerId)
+
+    this.revenueUpdateListener { coins, user ->
+        user
+    }
+
     Appodeal.setBannerCallbacks(object : BannerCallbacks {
         override fun onBannerClicked() {
             return
