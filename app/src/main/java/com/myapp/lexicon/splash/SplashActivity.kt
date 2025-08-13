@@ -1,5 +1,8 @@
 package com.myapp.lexicon.splash
 
+import admost.sdk.base.AdMost
+import admost.sdk.base.AdMostConfiguration
+import admost.sdk.listener.AdMostInitListener
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -20,6 +23,7 @@ import com.myapp.lexicon.common.KEY_APP_STORE_LINK
 import com.myapp.lexicon.common.MESSAGE_TO_USER
 import com.myapp.lexicon.databinding.ALayoutSplashScreenBinding
 import com.myapp.lexicon.dialogs.ConfirmDialog
+import com.myapp.lexicon.helpers.logIfDebug
 import com.myapp.lexicon.helpers.showDialogAsSingleton
 import com.myapp.lexicon.helpers.startTimer
 import com.myapp.lexicon.main.MainActivity
@@ -59,6 +63,24 @@ class SplashActivity : AppCompatActivity() {
             goToAppStore()
             finish()
         }
+
+        val configuration = AdMostConfiguration.Builder(this, "dc5ba8a0-9729-43ab-9360-81149835d5ab").apply {
+                setSubjectToCCPA(false)
+                setSubjectToGDPR(false)
+                setUserConsent(true)
+                showUIWarningsForDebuggableBuild(BuildConfig.DEBUG)
+            }.build()
+
+        AdMost.getInstance().init(configuration, object : AdMostInitListener {
+            override fun onInitCompleted() {
+                "******************* AdMost init SUCCESSFUL **********************".logIfDebug()
+            }
+
+            override fun onInitFailed(p0: Int) {
+                "******************* AdMost init error: $p0 **********************".logIfDebug()
+            }
+
+        })
 
         if (BuildConfig.DEBUG) {
             Appodeal.setLogLevel(logLevel = Log.LogLevel.verbose)

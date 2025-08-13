@@ -29,6 +29,7 @@ import com.myapp.lexicon.aboutapp.AboutAppFragment;
 import com.myapp.lexicon.addword.TranslateFragment;
 import com.myapp.lexicon.ads.AdsViewModel;
 import com.myapp.lexicon.ads.RevenueViewModel;
+import com.myapp.lexicon.ads.ext.AdMostExtKt;
 import com.myapp.lexicon.ads.ext.AdsExtKt;
 import com.myapp.lexicon.auth.AuthFragment;
 import com.myapp.lexicon.auth.AuthViewModel;
@@ -517,8 +518,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MainFragment mainFragment = MainFragment.Companion.getInstance(this);
         getSupportFragmentManager().beginTransaction().add(R.id.frame_to_page_fragm, mainFragment).commit();
 
-        BannerView bannerBottom = contentBinding.bannerBottom;
-        AdsExtKt.showBannerViewIfLoaded(this, bannerBottom.getId());
+//        BannerView bannerBottom = contentBinding.bannerBottom;
+//        AdsExtKt.showBannerViewIfLoaded(this, bannerBottom.getId());
+
+        AdMostExtKt.showBannerIfLoaded(this, "ed5b386c-6991-48d9-9e0b-54a33b68721e");
 
         onRevenueUpdate();
 

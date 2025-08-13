@@ -10,5 +10,9 @@ dependencyResolutionManagement {
         }
         maven { url 'https://jitpack.io' }
         maven { url "https://artifactory.appodeal.com/appodeal" }
+
+        maven { url 'https://mvn-repo.admost.com/artifactory/amr-2' }
+        maven { url 'https://dl-maven-android.mintegral.com/repository/mbridge_android_sdk_oversea' }
+        maven { url 'https://artifact.bytedance.com/repository/pangle' }
     }
 }

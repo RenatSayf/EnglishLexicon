@@ -189,6 +189,16 @@ dependencies {
     implementation 'com.google.android.play:app-update:2.1.0'
     implementation 'com.google.android.play:app-update-ktx:2.1.0'
 
+    // AdMost
+    implementation 'com.admost.sdk:amr:3.2.1'
+    implementation 'com.google.android.gms:play-services-base:18.7.2'
+    implementation 'com.google.android.gms:play-services-ads:24.5.0'
+    implementation 'com.admost.sdk:admob-adapter:24.0.0.1.a49'
+    implementation 'com.admost.sdk:facebook-adapter:6.20.0.a49'
+    implementation 'androidx.annotation:annotation:1.9.1'
+    implementation 'com.admost.sdk:mintegral-adapter:16.9.71.a49'
+    implementation 'com.admost.sdk:tiktok-adapter:7.1.0.8.a49'
+
 }
 
 
