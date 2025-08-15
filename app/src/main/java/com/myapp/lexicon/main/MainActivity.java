@@ -521,7 +521,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        BannerView bannerBottom = contentBinding.bannerBottom;
 //        AdsExtKt.showBannerViewIfLoaded(this, bannerBottom.getId());
 
-        AdMostExtKt.showBannerIfLoaded(this, "ed5b386c-6991-48d9-9e0b-54a33b68721e");
+
 
         onRevenueUpdate();
 

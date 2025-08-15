@@ -1,5 +1,8 @@
 package com.myapp.lexicon.main
 
+import admost.sdk.base.AdMost
+import admost.sdk.base.AdMostConfiguration
+import admost.sdk.listener.AdMostInitListener
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
@@ -13,6 +16,7 @@ import com.myapp.lexicon.R
 import com.myapp.lexicon.aboutapp.checkAppUpdate
 import com.myapp.lexicon.aboutapp.showUpdateDialog
 import com.myapp.lexicon.aboutapp.showUpdateSnackBar
+import com.myapp.lexicon.ads.ext.showBannerIfLoaded
 import com.myapp.lexicon.ads.models.AD_MAIN
 import com.myapp.lexicon.ads.models.AD_SERVICE
 import com.myapp.lexicon.ads.models.AD_TEST
@@ -68,11 +72,23 @@ class MainFragment : Fragment() {
         AD_VIDEO
         AD_SERVICE
 
-//        Appodeal.setAdRevenueCallbacks(object : AdRevenueCallbacks {
-//            override fun onAdRevenueReceive(revenueInfo: RevenueInfo) {
-//                requireActivity().setRevenueUpdateResult(revenueInfo)
-//            }
-//        })
+        val configuration = AdMostConfiguration.Builder(requireActivity(), "dc5ba8a0-9729-43ab-9360-81149835d5ab").apply {
+            setSubjectToCCPA(false)
+            setSubjectToGDPR(false)
+            setUserConsent(true)
+            showUIWarningsForDebuggableBuild(BuildConfig.DEBUG)
+        }.build()
+
+        AdMost.getInstance().init(configuration, object : AdMostInitListener {
+            override fun onInitCompleted() {
+                "******************* AdMost init SUCCESSFUL **********************".logIfDebug()
+                requireActivity().showBannerIfLoaded("ed5b386c-6991-48d9-9e0b-54a33b68721e")
+            }
+
+            override fun onInitFailed(p0: Int) {
+                "******************* AdMost init error: $p0 **********************".logIfDebug()
+            }
+        })
 
         val launcher = this.registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
 
