@@ -579,11 +579,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ExtensionsKt.printStackTraceIfDebug(e);
             }
 
-            if (tvReward != null)
-            {
-                tvReward.setText(text);
-                tvReward.setVisibility(View.VISIBLE);
-            }
+//            if (tvReward != null)
+//            {
+//                tvReward.setText(text);
+//                tvReward.setVisibility(View.VISIBLE);
+//            }
             toolBar.setOnClickListener(view -> {
                 if (drawerLayout != null)
                 {
