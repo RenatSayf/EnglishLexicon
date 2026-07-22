@@ -22,8 +22,6 @@ import com.myapp.lexicon.helpers.printStackTraceIfDebug
 import com.parse.Parse
 import com.yandex.mobile.ads.common.InitializationListener
 import com.yandex.mobile.ads.common.MobileAds
-import io.appmetrica.analytics.AppMetrica
-import io.appmetrica.analytics.AppMetricaConfig
 
 
 class App : Application(), Configuration.Provider {
@@ -67,10 +65,6 @@ class App : Application(), Configuration.Provider {
                 }
             })
         }
-
-        val apiKey = getString(R.string.ya_metrica_api_key)
-        val config = AppMetricaConfig.newConfigBuilder(apiKey).build()
-        AppMetrica.activate(this, config)
 
         MobileAds.initialize(this, object : InitializationListener {
             override fun onInitializationCompleted() {

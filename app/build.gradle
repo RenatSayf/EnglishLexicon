@@ -164,10 +164,7 @@ dependencies {
 
     // Yandex Mobile Ads SDK
     //noinspection MobileAdsSdkOutdatedVersion
-    implementation 'com.yandex.android:mobileads:7.11.0'
-
-    // Yandex AppMetrica SDK.
-    implementation 'io.appmetrica.analytics:analytics:7.7.0'
+    implementation 'com.yandex.android:mobileads:7.18.7'
 
     //FormatEditText
     implementation 'com.github.dkzwm:fet-core:0.2.1'
