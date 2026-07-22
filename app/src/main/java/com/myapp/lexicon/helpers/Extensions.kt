@@ -360,7 +360,7 @@ fun<T> Context.checkIsActivityShown(
     val activityManager = (this.getSystemService(Service.ACTIVITY_SERVICE)) as ActivityManager?
     val tasks = activityManager?.appTasks
     tasks?.forEach { t ->
-        if (clazz.canonicalName.equals(t.taskInfo.baseActivity?.className, true)) {
+        if (clazz.canonicalName.equals(t.taskInfo?.baseActivity?.className, true)) {
             onVisible.invoke()
             return
         }

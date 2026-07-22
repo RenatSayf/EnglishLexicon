@@ -8,12 +8,12 @@ apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
 
 
 android {
-    compileSdk 36
+    compileSdk 37
     defaultConfig {
         applicationId "com.myapp.lexicon"
         minSdkVersion 26
         //noinspection EditedTargetSdkVersion
-        targetSdkVersion 36
+        targetSdkVersion 37
         versionName '5.14'   //Hint last versionName in store is 5.13
         versionCode 109      //Hint last versionCode in store is 108
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -41,11 +41,11 @@ android {
         debug {
             debuggable true
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     buildFeatures {
